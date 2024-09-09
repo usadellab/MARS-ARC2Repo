@@ -48,8 +48,4 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) 
 
 ## **Contact**
 
-For any inquiries or support requests, please reach out to [your email/contact details].
-
----
-
-This expanded version provides a clear explanation of the project’s purpose, its components, and how users can engage with it. It also includes some standard Git repository sections such as "Contributing," "License," and "Contact." Let me know if you'd like further adjustments!
+For any inquiries or support requests, please reach out to [xiaoran](x.zhou@fz-juelich.de).
