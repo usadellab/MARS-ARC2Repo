@@ -1,7 +1,3 @@
-Here’s an extended version suitable for a Git repository introduction:
-
----
-
 # **MARS-ARC2Repo**
 
 **MARS-ARC2Repo** is a comprehensive implementation of the **Multi-omics Adapter for Repository Submissions (MARS)** within the IBG-4 context. This tool streamlines the submission of multi-omics life sciences data to multiple specialized repositories, bridging the gap between data creation and repository submission, while ensuring that annotated research context is preserved and efficiently transferred.
