@@ -300,12 +300,17 @@
           <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
               <div class="center">
-                DataPLANT test JSON -> BioSamples, click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json)) ">here</a>
+                DataPLANT -> BioSamples, click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'cplantbox.com') ) ">here</a>
                 <br>
-                DataHub test JSON -> BioSamples, click <a href="#" onclick="submitAll('biosamples', window.datahub_json)">here</a> <br>
-                DataPLANT test JSON -> ENA, click <a href="#"
-                  onclick="submitAll('ena', dataplant_biosamples_returned_json)">here</a> <br>
-                DataHub test JSON -> ENA, click <a href="#" onclick="enatest(datahub_biosamples_returned_json)">here</a>
+                DataPLANT -> BioSamples (new), click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'dataplan.top')) ">here</a>
+                <br>
+                DataPLANT -> ENA, click <a href="#"
+                onclick="submitAll('ena', dataplant_biosamples_returned_json, 'cplantbox.com')">here</a> <br>
+
+                DataHub -> BioSamples, click <a href="#" onclick="submitAll('biosamples', window.datahub_json, 'cplantbox.com')">here</a> <br>
+                DataHub -> BioSamples (new), click <a href="#" onclick="submitAll('biosamples', window.datahub_json,'dataplan.top' )">here</a> <br>
+               
+                DataHub -> ENA, click <a href="#" onclick="enatest(datahub_biosamples_returned_json)">here</a>
                 <br>
                 <input class="btn btn-primary d-inline d-none" type="file" id="input_json" name="json" multiple />
                 <br>
@@ -555,6 +560,21 @@
         alert(e);
       }});
     
+    var isaMapping ={
+      "getInput" : `
+        $assays := $.studies.assays.comments[target_repository = "ENA"].%;
+        $files := $assays.dataFiles.\`@id\`;
+        $processSequence := $assays.processSequence;
+        $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
+        $inputsName := $processSequence.inputs[$outputsIndex].name;
+        $sampleIndex := $.studies.materials.samples ~> $map(function($v, $i) { $v.name = $inputsName ? $i });
+        $.studies.materials.sources[$sampleIndex]
+
+      `
+
+
+
+    }
 
     var checklist_biosamples = [
       {
@@ -684,7 +704,7 @@
       var result = await jsonata(expression).evaluate(json);
       return result;
     }
-    async function checkall(checklist, isa) {
+    async function checkall(checklist, isa, instance="cplantbox.com") {
       window.alert_place_holder.innerHTML = "";
       var passed = 0;
       for (const [index, element] of Object.entries(checklist,)) {
@@ -794,8 +814,8 @@
       });
     };
 
-    async function isaVis(json) {
-      window.input_json = await checkall(checklist_biosamples, json);
+    async function isaVis(json, instance) {
+      window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
       window.path = 0;
       let ele1 = document.getElementById("jsonVisualize");
@@ -1025,7 +1045,7 @@
     }
 
 
-    function bstest(testJSON) {
+    function bstest(testJSON,  instance) {
       loading.show();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
@@ -1051,7 +1071,7 @@
           token = text;
           document.getElementById("tokenText").innerText = token;
           document.getElementById("tokenStatus").innerText = "Returned";
-          bsSubmit(testJSON);
+          bsSubmit(testJSON, instance);
           //document.getElementById("status_modal_button").click();
           // Handle the response here
         })
@@ -1077,7 +1097,7 @@
 
     function enaSubmit(name, password, json) {
       json =
-        fetch('https://ena.cplantbox.com/isaena/submit?webinUserName=' + name + '&webinPassword=' + password, {
+        fetch('https://ena.dataplan.top/isaena/submit?webinUserName=' + name + '&webinPassword=' + password, {
           method: 'POST',
           //mode: 'cors',
           headers: {
@@ -1120,9 +1140,9 @@
     // }
 
 
-    function bsSubmit(json) {
+    function bsSubmit(json, instance) {
 
-      const fulltoken = "https://biosamples.cplantbox.com/isabiosamples/submit?webinjwt=" + token;
+      const fulltoken = "https://biosamples."+instance+"/isabiosamples/submit?webinjwt=" + token;
       fetch(fulltoken, {
         method: 'POST',
         //mode: 'no-cors',
@@ -1386,12 +1406,12 @@
        .then(e => alert("copy successful"));
       }
       
-     const submitAll = async function(id, json) {
+     const submitAll = async function(id, json, instance) {
       if (json)
       //window.input_json =await  checkall(checklist_biosamples, json);
       switch (id){
         case "biosamples":
-          bstest(json);
+          bstest(json,  instance);
           break;
         case "ena":
           enatest(enaModify(json));
