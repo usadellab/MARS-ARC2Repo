@@ -170,7 +170,7 @@
   <script src="./js/dataplant_biosamples_returned_json.js"></script>
   <script src="./js/datahub_biosamples_returned_json.js"></script>
   <script src="./js/git.js"></script>
-  <script src="./js/main060924.js" type="text/javascript"></script>
+  <script src="./js/main-25-01-21.js" type="text/javascript"></script>
   <script src="./js/jsonata.min.js"></script>
   <script type="module">
     import http from './js/http.js'
@@ -562,13 +562,13 @@
     
     var isaMapping ={
       "getInput" : `
-        $assays := $.studies.assays.comments[target_repository = "ENA"].%;
+        ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
         $files := $assays.dataFiles.\`@id\`;
         $processSequence := $assays.processSequence;
         $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
         $inputsName := $processSequence.inputs[$outputsIndex].name;
         $sampleIndex := $.studies.materials.samples ~> $map(function($v, $i) { $v.name = $inputsName ? $i });
-        $.studies.materials.sources[$sampleIndex]
+        $.studies.materials.sources[$sampleIndex])
 
       `
 
