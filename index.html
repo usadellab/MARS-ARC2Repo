@@ -337,7 +337,11 @@
         id="cModalButton"> Start Submissions </button>
       </div>
       </div>
-      
+      <div id="sampleTable" class="row justify-content-center m-3">
+        Table
+
+
+      </div>
     </div>
 
     <div name="tab" class=" col-12 d-none" id="ARC2JSONTab">
@@ -516,6 +520,63 @@
       //
     }
     ];
+
+    var googleJSON;
+
+function csvJSON(csv){
+
+  var lines=csv.split("\n");
+
+  var result = [];
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+      var obj = {};
+      var currentline=lines[i].split(",");
+
+      for(var j=0;j<headers.length;j++){
+          obj[headers[j]] = currentline[j];
+      }
+
+      result.push(obj);
+
+  }
+
+  //return result; //JavaScript object
+  return JSON.stringify(result); //JSON
+  }
+
+async function fetchGoogleCSV(){
+    try {
+      //read .csv file on a server
+      const target = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSelJd6uBG8Ri_vqoxawVbCmy4U5Lvc1vqwOFo7dgBz1_yWOuosL46aG9dZdIB7RvuCOzW5Vnr3ytck/pub?gid=82880550&single=true&output=csv`;
+
+      const res = await fetch(target, {
+      
+          method: 'get',
+          headers: {
+            
+              'content-type': 'text/csv;charset=UTF-8',
+          }
+      });
+
+      if (res.status === 200) {
+          const data = await res.text();
+          googleJSON =JSON.parse(csvJSON(data));
+          //document.getElementById("submission").disabled = false;
+
+      } else {
+          console.log(`Error code ${res.status}`);
+      }
+    } catch (err) {
+      console.log(err)
+  }
+
+}
+
+fetchGoogleCSV();
+
     addEventListener("load", (event) => {try{var repoList;
     fetch('https://git.nfdi4plants.org/api/v4/projects')
       .then(data => {
@@ -561,16 +622,49 @@
       }});
     
     var isaMapping ={
-      "getInput" : `
+      "getFiles": `
+        ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
+        $files := $assays.dataFiles.\`@id\`;`,
+        "getSamples": `
         ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
         $files := $assays.dataFiles.\`@id\`;
         $processSequence := $assays.processSequence;
         $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
-        $inputsName := $processSequence.inputs[$outputsIndex].name;
-        $sampleIndex := $.studies.materials.samples ~> $map(function($v, $i) { $v.name = $inputsName ? $i });
-        $.studies.materials.sources[$sampleIndex])
+        $inputsId := ($processSequence.inputs.\`@id\`)[$outputsIndex];
+        $inputsIndex := $processSequence.outputs  ~> $map(function($v, $i) { $v.\`@id\` = $inputsId ? $i });
+        $characters := $processSequence.inputs[0].characteristics;
+        $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
+       )`,
 
-      `
+      "getSampleValue" : `
+        ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
+        $files := $assays.dataFiles.\`@id\`;
+        $processSequence := $assays.processSequence;
+        $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
+        $inputsId := ($processSequence.inputs.\`@id\`)[$outputsIndex];
+        $inputsIndex := $processSequence.outputs  ~> $map(function($v, $i) { $v.\`@id\` = $inputsId ? $i });
+        $characters := $processSequence.inputs[0].characteristics;
+        $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
+       )`,
+
+       "replaceCharaterisics":`
+       ($assays := $.isa.studies.assays.comments[target_repository = "ENA"].%;
+          $processSequence := $assays.processSequence;
+          $files := $assays.dataFiles.\`@id\`~> 
+          $map(function($v, $i) {[$v, $processSequence.outputs ~> 
+              $map(function($v2, $i2) { $v2.\`@id\` = $v ? [$i2,($processSequence.inputs.\`@id\`)[$i2], $processSequence.outputs ~>
+                  $map(function($v3, $i3) { $v3.\`@id\` = ($processSequence.inputs.\`@id\`)[$i2] ? [$i3,$processSequence.inputs[$i3] ] }) 
+              ]}) 
+              ]});
+       `,
+       "allCharacteristics": `(
+            $characteristics := $.isa.**.characteristics.\`@id\`;
+            $map($characteristics, function($v, $i, $a) {
+            [$v,$match($v, /\/(.+)=/).groups[0] , $.csv[ontName = $match($v, /\/(.+)=/).groups[0] ] ]
+        })`,
+
+
+      
 
 
 
@@ -944,13 +1038,30 @@
           dataplant_json = JSON.parse(jsonText);
 
           await isaVis(dataplant_json);
-
+          document.getElementById("sampleTable").innerHTML = await makeSampleTable();
           return document.getElementById("isacheckNavBtn").click()
         
       } catch (error) {
         alert(error);
       }
       
+    }
+
+    async function makeSampleTable(json){
+
+      json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
+      const newJson ={ "isa" : json, "csv":googleJSON };
+      sampleTableHTML = await jCheck(json, `($assays := $.studies.assays.comments[target_repository = "ENA"].%;
+        $files := $assays.dataFiles.\`@id\`;
+        $processSequence := $assays.processSequence;
+        $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
+        $inputsId := ($processSequence.inputs.\`@id\`)[$outputsIndex];
+        $inputsIndex := $processSequence.outputs  ~> $map(function($v, $i) { $v.\`@id\` = $inputsId ? $i });
+        $characters := $processSequence.inputs[0].characteristics;
+        $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
+       )`)
+
+      return sampleTableHTML;
     }
 
     function dlText(text, Name) {
@@ -1473,7 +1584,7 @@
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" value="" id="metabolights" name="repo">
                       <label class="form-check-label" for="metabolights">
-                        Metabolites
+                        Metabolights
                       </label>
                     </div>
 
