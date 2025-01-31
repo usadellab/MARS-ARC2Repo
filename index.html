@@ -512,6 +512,7 @@
     var log_backup = console.log;
     var fs = FS.fs;
     var alert_place_holder = document.getElementById('alertPlace');
+    var JSONataExport= [];
     var log_messages = [];
     var current_file;
     var steps = [{
@@ -647,21 +648,34 @@ fetchGoogleCSV();
         $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
        )`,
 
-       "replaceCharaterisics":`
+       "parseCh":`
        ($assays := $.isa.studies.assays.comments[target_repository = "ENA"].%;
           $processSequence := $assays.processSequence;
           $files := $assays.dataFiles.\`@id\`~> 
           $map(function($v, $i) {[$v, $processSequence.outputs ~> 
               $map(function($v2, $i2) { $v2.\`@id\` = $v ? [$i2,($processSequence.inputs.\`@id\`)[$i2], $processSequence.outputs ~>
-                  $map(function($v3, $i3) { $v3.\`@id\` = ($processSequence.inputs.\`@id\`)[$i2] ? [$i3,$processSequence.inputs[$i3] ] }) 
+                  $map(function($v3, $i3) { $v3.\`@id\` = ($processSequence.inputs.\`@id\`)[$i2] ? [$i3,$processSequence.inputs[$i3].$string() ] }) 
               ]}) 
               ]});
+    )
        `,
        "allCharacteristics": `(
             $characteristics := $.isa.**.characteristics.\`@id\`;
             $map($characteristics, function($v, $i, $a) {
             [$v,$match($v, /\/(.+)=/).groups[0] , $.csv[ontName = $match($v, /\/(.+)=/).groups[0] ] ]
         })`,
+      "getSources": `
+      ($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+      $ENAassays.dataFiles.\`@id\`
+      ~> $map( function($v1, $i1, $a1){
+          ($id :=$ENAassays.processSequence.outputs[\`@id\` = $v1].%.inputs.\`@id\`;
+        $.isa.studies.materials.samples 
+            ~> $map(function($v2, $i2, $a2){
+                $v2.[\`@id\` = $id] ? [$v1, $v2 , $.isa.studies.materials.sources[$i2]] 
+            })
+        )})
+        )
+      `,
 
 
       
@@ -909,6 +923,8 @@ fetchGoogleCSV();
     };
 
     async function isaVis(json, instance) {
+      
+      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json);
       window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
       window.path = 0;
@@ -927,6 +943,7 @@ fetchGoogleCSV();
         stepListText += "<option value=" + i + " label=" + i + " >" + i + "</option>"
       }
       document.getElementById("steplist").innerHTML = stepListText;
+      
       jsonRange.value = 3;
       jsonRange.onchange()
     }
@@ -1038,7 +1055,7 @@ fetchGoogleCSV();
           dataplant_json = JSON.parse(jsonText);
 
           await isaVis(dataplant_json);
-          document.getElementById("sampleTable").innerHTML = await makeSampleTable();
+          
           return document.getElementById("isacheckNavBtn").click()
         
       } catch (error) {
@@ -1047,21 +1064,50 @@ fetchGoogleCSV();
       
     }
 
+    function addTableHeader( datafile, sample, source){
+      return `<h2>File Name: `+ datafile +`</h2><br>
+      <h2>Samples: `+ sample +`</h2><br>
+      <h2>Samples: `+ source +`</h2><br>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Source Name</th>
+            <th scope="col">Source Attributes</th>
+            <th scope="col">Source Attributes Value</th>
+          </tr>
+        </thead>
+        <tbody>`
+    }
+    function addTableRow(no, id ){
+      const value= id.split("#MaterialAttributeValue/")[1]
+      const value2 = value.split("=")
+      return `<tr>
+            <th>`+no+`</th>
+            <td>`+value2[0]+`</td>
+            <td>`+value2[1]+`</td>
+          </tr>`
+    }
     async function makeSampleTable(json){
-
+      console.log(json);
       json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
       const newJson ={ "isa" : json, "csv":googleJSON };
-      sampleTableHTML = await jCheck(json, `($assays := $.studies.assays.comments[target_repository = "ENA"].%;
-        $files := $assays.dataFiles.\`@id\`;
-        $processSequence := $assays.processSequence;
-        $outputsIndex := $processSequence.outputs ~> $map(function($v, $i) { $v.\`@id\` = $files[0] ? $i });
-        $inputsId := ($processSequence.inputs.\`@id\`)[$outputsIndex];
-        $inputsIndex := $processSequence.outputs  ~> $map(function($v, $i) { $v.\`@id\` = $inputsId ? $i });
-        $characters := $processSequence.inputs[0].characteristics;
-        $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
-       )`)
-
-      return sampleTableHTML;
+      JSONataExport[0] = await jCheck(newJson, isaMapping["getSources"])
+      let html="";
+      JSONataExport[0].forEach((v,i,a) => {
+        let tableHTML="";
+        tableHTML += addTableHeader(v[0], v[1]["@id"], v[2]["@id"]);
+        console.log(v[2]);
+        v[2].characteristics.forEach(
+          (v2,i2,a2) => {
+            tableHTML += addTableRow(i2+1, v2["@id"])
+          }
+        )
+       tableHTML += `</tbody>
+      </table>`
+      html +=tableHTML
+       }
+      )   
+      return html;
     }
 
     function dlText(text, Name) {
