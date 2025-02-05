@@ -647,46 +647,51 @@ fetchGoogleCSV();
         $characters := $processSequence.inputs[0].characteristics;
         $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
        )`,
-
-       "parseCh":`
-       ($assays := $.isa.studies.assays.comments[target_repository = "ENA"].%;
-          $processSequence := $assays.processSequence;
-          $files := $assays.dataFiles.\`@id\`~> 
-          $map(function($v, $i) {[$v, $processSequence.outputs ~> 
-              $map(function($v2, $i2) { $v2.\`@id\` = $v ? [$i2,($processSequence.inputs.\`@id\`)[$i2], $processSequence.outputs ~>
-                  $map(function($v3, $i3) { $v3.\`@id\` = ($processSequence.inputs.\`@id\`)[$i2] ? [$i3,$processSequence.inputs[$i3].$string() ] }) 
-              ]}) 
-              ]});
-    )
-       `,
-       "allCharacteristics": `(
-            $characteristics := $.isa.**.characteristics.\`@id\`;
-            $map($characteristics, function($v, $i, $a) {
-            [$v,$match($v, /\/(.+)=/).groups[0] , $.csv[ontName = $match($v, /\/(.+)=/).groups[0] ] ]
-        })`,
-      "getSources": `
-      ($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
-      $ENAassays.dataFiles.\`@id\`
-      ~> $map( function($v1, $i1, $a1){
-          ($id :=$ENAassays.processSequence.outputs[\`@id\` = $v1].%.inputs.\`@id\`;
-        $.isa.studies.materials.samples 
-            ~> $map(function($v2, $i2, $a2){
-                $v2.[\`@id\` = $id] ? [$v1, $v2 , $.isa.studies.materials.sources[$i2]] 
-            })
-        )})
-        )
+      "getAllSources":`
+            (
+            $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+            $ENAassays.dataFiles.\`@id\`
+              ~> $map( function($v1, $i1, $a1){
+                  (
+                $searchSource:= function($outputIdList){
+                $exists($process:=$ENAassays.processSequence.outputs[\`@id\` = $outputIdList[-1]].%) ?   $searchSource( $append($outputIdList, $process.inputs.\`@id\`)): $outputIdList 
+            };
+            $id:= $searchSource([$v1]);
+            $process:= $ENAassays.processSequence.inputs[\`@id\` = $id[-1]].%;
+            $protocols:= $process.executesProtocol;
+            $parameterValues:= $process.parameterValues;
+            $.isa.studies.materials.samples 
+                ~> $map(function($v2, $i2, $a2){
+                    $v2.[\`@id\` = $id[-1]] ? [[$id], [{"samples":$v2}, {"sampleProtocols":$protocols}, {"parameterValues":$parameterValues}] , {"source": [$.isa.studies.materials.sources[$i2], $.isa.studies.processSequence.outputs[\`@id\`=$id[-1]].%]}] 
+                })
+            )})
+      )
       `,
-
-
-      
-
-
-
+      "getAllExperiments": `(
+        $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+        $allExperiment := {};
+        $sss:= $ENAassays.dataFiles.\`@id\`
+          ~> $map( function($v1, $i1, $a1){
+              ($searchSource:= function($outputIdList){
+              $exists($process:=$ENAassays.processSequence.outputs[\`@id\` = $outputIdList[-1]].%) ?   
+              $searchSource( $append($outputIdList, $process.inputs.\`@id\`)): $outputIdList };
+              $ids:= $searchSource([$v1]);
+              $ids~> $map(function($v3, $i3, $a3){(
+                $ENAassays.processSequence.inputs[\`@id\` = $v3].%.executesProtocol.parameters[\`@id\`= "#ProtocolParameter/NCIT:C182058" ].%.% ;
+              )});
+            )});
+          $distinct($sss)
+      )`, "getAllRuns": `      (
+                $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+                $ENAassays.dataFiles.\`@id\`
+                  ~> $map( function($v1, $i1, $a1){( 
+                      $ENAassays.processSequence.inputs[\`@id\`=$v1].%)
+                        }))`
     }
 
     var checklist_biosamples = [
       {
-        "description" : "To check if investigation exists as a wraper",
+        "description" : "To check if investigation exists as a wrapper",
         "key": "investigation",
         "jsonata": "$.$keys()",
         "error": "element.key + \" can not be found in\" element.jsonata",
@@ -1066,8 +1071,8 @@ fetchGoogleCSV();
 
     function addTableHeader( datafile, sample, source){
       return `<h2>File Name: `+ datafile +`</h2><br>
-      <h2>Samples: `+ sample +`</h2><br>
-      <h2>Samples: `+ source +`</h2><br>
+      <h2>Sample: `+ sample +`</h2><br>
+      <h2>Source: `+ source +`</h2><br>
       <table class="table">
         <thead>
           <tr>
@@ -1087,19 +1092,35 @@ fetchGoogleCSV();
             <td>`+value2[1]+`</td>
           </tr>`
     }
+    function addTableRow2(no, v1, v2 ){
+      return `<tr>
+            <th>`+no+`</th>
+            <td>`+v1+`</td>
+            <td>`+v2+`</td>
+          </tr>`
+    }
     async function makeSampleTable(json){
+      console.log("input isa json");
       console.log(json);
       json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
       const newJson ={ "isa" : json, "csv":googleJSON };
-      JSONataExport[0] = await jCheck(newJson, isaMapping["getSources"])
+      JSONataExport[0] = await jCheck(newJson, isaMapping["getAllSources"])
       let html="";
+      console.log("JSONata export:");
+      console.log(JSONataExport[0]);
       JSONataExport[0].forEach((v,i,a) => {
         let tableHTML="";
-        tableHTML += addTableHeader(v[0], v[1]["@id"], v[2]["@id"]);
+        tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
         console.log(v[2]);
-        v[2].characteristics.forEach(
+        v[2]["source"][0].characteristics.forEach(
           (v2,i2,a2) => {
             tableHTML += addTableRow(i2+1, v2["@id"])
+          }
+        );
+        console.log(v[2]["source"][1]);
+        v[2]["source"][1].parameterValues.forEach(
+          (v3,i3,a3) => {
+            tableHTML += addTableRow2(i3+1, v3.category.parameterName.annotationValue, v3.value.annotationValue)
           }
         )
        tableHTML += `</tbody>
