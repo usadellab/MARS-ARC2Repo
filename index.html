@@ -934,7 +934,7 @@ fetchGoogleCSV();
 
     async function isaVis(json, instance) {
       
-      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json)[0];
+      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json);
 
       window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
@@ -1202,7 +1202,7 @@ fetchGoogleCSV();
       const submitJSON = await PrepareSubmissionJSON(alias, "", "ADD", "HOLD");
       const projectJSON = await PrepareProjectJSON(alias, name, title, description, id) ;
       console.log([submitJSON, projectJSON, sampleJSON]);
-      const text = await JSONSubmit(submitJSON, projectJSON, sampleJSON, "V2ViaW4tNjA4MDI6RWlaNlZSNEg3RnphWkRM") ;
+      const text = await JSONSubmit(submitJSON, projectJSON, sampleJSON, token) ;
       return [html, text];
     }
 
