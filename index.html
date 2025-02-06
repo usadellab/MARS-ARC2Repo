@@ -927,9 +927,15 @@ fetchGoogleCSV();
       });
     };
 
+
+    
+
+
+
     async function isaVis(json, instance) {
       
-      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json);
+      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json)[0];
+
       window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
       window.path = 0;
@@ -1083,9 +1089,8 @@ fetchGoogleCSV();
         </thead>
         <tbody>`
     }
-    function addTableRow(no, id ){
-      const value= id.split("#MaterialAttributeValue/")[1]
-      const value2 = value.split("=")
+    function addTableRow(no, value2 ){
+      
       return `<tr>
             <th>`+no+`</th>
             <td>`+value2[0]+`</td>
@@ -1099,36 +1104,106 @@ fetchGoogleCSV();
             <td>`+v2+`</td>
           </tr>`
     }
+    async function PrepareSubmissionJSON(alias, accession, type1, type2){
+        return {
+        "alias": alias,
+        "accession": accession,
+        "actions": [
+            {"type": type1},
+            {"type": type2,
+            "holdUntilDate": "2025-12-12"}
+          ],
+      }
+    }
+    async function PrepareProjectJSON(alias, name, title, description, id){
+      return {
+            "alias": alias,
+            "name": name,
+            "title": title,
+            "description": description,
+            "sequencingProject": {},
+            "attributes": [
+                {
+                    "tag": "testTag",
+                    "value": "testValue"
+                }
+            ],
+            "project_links": [
+                {
+                    "xrefLink": {
+                        "db": "PLANTdataHUB",
+                        "id": id
+                    }
+                }
+            ]
+        }
+    }
+    function PrepareSampleJSON(alias, title, taxonId, attributes){
+        return {
+            "alias": alias,
+            "title": title,
+            "organism": {
+                "taxonId": taxonId
+            },
+            "attributes": attributes
+        }
+    }
+
     async function makeSampleTable(json){
       console.log("input isa json");
       console.log(json);
+      let sampleJSON=[];
       json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
       const newJson ={ "isa" : json, "csv":googleJSON };
       JSONataExport[0] = await jCheck(newJson, isaMapping["getAllSources"])
       let html="";
-      console.log("JSONata export:");
-      console.log(JSONataExport[0]);
+      
       JSONataExport[0].forEach((v,i,a) => {
         let tableHTML="";
+        let attributes = [];
         tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
         console.log(v[2]);
         v[2]["source"][0].characteristics.forEach(
           (v2,i2,a2) => {
-            tableHTML += addTableRow(i2+1, v2["@id"])
+            const value= v2["@id"].split("#MaterialAttributeValue/")[1];
+            const value2 = value.split("=");
+            attributes=attributes.concat({
+                    "tag": value2[0],
+                    "value": value2[1]
+                })
+            tableHTML += addTableRow(i2+1, value2)
           }
         );
         console.log(v[2]["source"][1]);
         v[2]["source"][1].parameterValues.forEach(
           (v3,i3,a3) => {
+            attributes=attributes.concat({
+                    "tag": v3.category.parameterName.annotationValue,
+                    "value": v3.value.annotationValue
+                });
             tableHTML += addTableRow2(i3+1, v3.category.parameterName.annotationValue, v3.value.annotationValue)
           }
         )
+        const alias = v[2]["source"][0]["@id"];
+        const title = v[2]["source"][0]["name"];
+        console.log(attributes);
+      let singleSample = PrepareSampleJSON(alias, title, "4577", attributes);
        tableHTML += `</tbody>
       </table>`
       html +=tableHTML
-       }
+      sampleJSON=sampleJSON.concat(singleSample) ;
+    }
       )   
-      return html;
+       const alias = newJson.isa.identifier ;
+       const name = newJson.isa.identifier ;
+       const title = newJson.isa.identifier ;
+       const description = newJson.isa.description;
+       const id = newJson.isa.identifier ;
+      const submitJSON = await PrepareSubmissionJSON(alias, "", "ADD", "HOLD");
+      const projectJSON = await PrepareProjectJSON(alias, name, title, description, id) ;
+      console.log([submitJSON, projectJSON, sampleJSON]);
+      const text = await JSONSubmit(submitJSON, projectJSON, sampleJSON, "V2ViaW4tNjA4MDI6RWlaNlZSNEg3RnphWkRM") ;
+      return [html, text];
     }
 
     function dlText(text, Name) {
@@ -1220,6 +1295,34 @@ fetchGoogleCSV();
       } else {
         window.alert("no file is selected to import");
       };
+    }
+    
+
+
+
+
+    async function JSONSubmit(submitJSON, projectJSON, sampleJSON, token){
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      // Construct the request body
+      var requestBody = {
+    "submission": submitJSON,
+    "projects": [projectJSON],
+    "samples": sampleJSON,
+};
+console.log(requestBody);
+      // Send the POST request using Fetch API
+      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic '+token,
+        },
+        body: JSON.stringify(requestBody)
+      })
+      const text = await response.text();
+      console.log(text);
+      return text;
     }
 
 
