@@ -300,8 +300,47 @@
           <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
               <div class="center">
-                DataPLANT -> BioSamples, click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'cplantbox.com') ) ">here</a>
+                DataPLANT -> BioSamples, 
+                <div class="btn-group">
+                  <button id="actionBtn1" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   Action1: ADD
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">ADD</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">MODIFY</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">CANCEL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">SUPRESS</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">KILL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">HOLD</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">CANCEL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">RELEASE</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">PROTECT</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">ROLLBACK</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">VALIDATE</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">RECEIPT</a></li>
+                  </ul>
+                  <button id="actionBtn2" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action2: HOLD
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">ADD</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">MODIFY</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">CANCEL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">SUPRESS</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">KILL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">HOLD</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">CANCEL</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">RELEASE</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">PROTECT</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">ROLLBACK</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">VALIDATE</a></li>
+                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">RECEIPT</a></li>
+                  </ul>
+                </div> 
+                <button class="btn btn-primary" onclick="newSubmit('biosamples')">here</button>
                 <br>
+                DataPLANT -> ENA, click <a href="#" onclick="newSubmit('ena')">here</a>
+                <!-- <br>
                 DataPLANT -> BioSamples (new), click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'dataplan.top')) ">here</a>
                 <br>
                 DataPLANT -> ENA, click <a href="#"
@@ -311,7 +350,7 @@
                 DataHub -> BioSamples (new), click <a href="#" onclick="submitAll('biosamples', window.datahub_json,'dataplan.top' )">here</a> <br>
                
                 DataHub -> ENA, click <a href="#" onclick="enatest(datahub_biosamples_returned_json)">here</a>
-                <br>
+                <br> -->
                 <input class="btn btn-primary d-inline d-none" type="file" id="input_json" name="json" multiple />
                 <br>
 
@@ -336,6 +375,9 @@
         <button class="btn btn-primary" style="display:inline" data-bs-toggle="modal" data-bs-target="#cModal"
         id="cModalButton"> Start Submissions </button>
       </div>
+      </div>
+      <div id="subStatus" class="row justify-content-center m-3">
+
       </div>
       <div id="sampleTable" class="row justify-content-center m-3">
         Table
@@ -521,7 +563,7 @@
       //
     }
     ];
-
+    var ENAJSON, ENAXML;
     var googleJSON;
 
 function csvJSON(csv){
@@ -547,6 +589,11 @@ function csvJSON(csv){
   //return result; //JavaScript object
   return JSON.stringify(result); //JSON
   }
+function actionBtn(id, action){
+  ENAJSON[0].actions[Number(id)-1].type= action;
+  document.getElementById("actionBtn"+id).innerHTML = action;
+
+}
 
 async function fetchGoogleCSV(){
     try {
@@ -929,13 +976,12 @@ fetchGoogleCSV();
 
 
     
-
+    
 
 
     async function isaVis(json, instance) {
-      
-      document.getElementById("sampleTable").innerHTML = await makeSampleTable(json);
-
+      const html1 = await makeSampleTable(json);
+      document.getElementById("sampleTable").innerHTML = html1;
       window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
       window.path = 0;
@@ -1089,12 +1135,12 @@ fetchGoogleCSV();
         </thead>
         <tbody>`
     }
-    function addTableRow(no, value2 ){
+    function addTableRow(no, v1, v2 ){
       
       return `<tr>
             <th>`+no+`</th>
-            <td>`+value2[0]+`</td>
-            <td>`+value2[1]+`</td>
+            <td>`+v1+`</td>
+            <td>`+v2+`</td>
           </tr>`
     }
     function addTableRow2(no, v1, v2 ){
@@ -1148,50 +1194,69 @@ fetchGoogleCSV();
             "attributes": attributes
         }
     }
-
+    function termConvert(term){
+      for (value of googleJSON){
+       
+        if (value["ontName"] == term){
+          console.log("converted "+term+ " to " + value["Field Name"]);
+          return value["Field Name"];
+      }
+    }
+    return term;
+  }
     async function makeSampleTable(json){
-      console.log("input isa json");
-      console.log(json);
+      //console.log("input isa json");
+      //console.log(json);
       let sampleJSON=[];
       json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
       const newJson ={ "isa" : json, "csv":googleJSON };
       JSONataExport[0] = await jCheck(newJson, isaMapping["getAllSources"])
       let html="";
-      
+      let sourceList =[];
       JSONataExport[0].forEach((v,i,a) => {
         let tableHTML="";
         let attributes = [];
         tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
-        console.log(v[2]);
+      
+        //console.log(v[2]);
         v[2]["source"][0].characteristics.forEach(
           (v2,i2,a2) => {
             const value= v2["@id"].split("#MaterialAttributeValue/")[1];
             const value2 = value.split("=");
+            const tag = termConvert(value2[0]);
             attributes=attributes.concat({
-                    "tag": value2[0],
+                    "tag": tag,
                     "value": value2[1]
                 })
-            tableHTML += addTableRow(i2+1, value2)
+            tableHTML += addTableRow(i2+1, tag, value2[1])
           }
         );
-        console.log(v[2]["source"][1]);
+        //console.log(v[2]["source"][1]);
         v[2]["source"][1].parameterValues.forEach(
           (v3,i3,a3) => {
+            const tag = termConvert(v3.category.parameterName.annotationValue);
             attributes=attributes.concat({
-                    "tag": v3.category.parameterName.annotationValue,
+                    "tag": tag,
                     "value": v3.value.annotationValue
                 });
-            tableHTML += addTableRow2(i3+1, v3.category.parameterName.annotationValue, v3.value.annotationValue)
+            tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
           }
         )
         const alias = v[2]["source"][0]["@id"];
         const title = v[2]["source"][0]["name"];
-        console.log(attributes);
-      let singleSample = PrepareSampleJSON(alias, title, "4577", attributes);
-       tableHTML += `</tbody>
-      </table>`
+        //console.log(attributes);
+      
+        
+      tableHTML += `</tbody>
+      </table>`;
       html +=tableHTML
+      if( !(sourceList.includes(alias))){
+      let singleSample = PrepareSampleJSON(alias, title, "4577", attributes);
       sampleJSON=sampleJSON.concat(singleSample) ;
+      sourceList = sourceList.concat(alias);
+        //console.log("sourceList is: " + sourceList)
+      }
+      
     }
       )   
        const alias = newJson.isa.identifier ;
@@ -1201,9 +1266,9 @@ fetchGoogleCSV();
        const id = newJson.isa.identifier ;
       const submitJSON = await PrepareSubmissionJSON(alias, "", "ADD", "HOLD");
       const projectJSON = await PrepareProjectJSON(alias, name, title, description, id) ;
-      console.log([submitJSON, projectJSON, sampleJSON]);
-      const text = await JSONSubmit(submitJSON, projectJSON, sampleJSON, token) ;
-      return [html, text];
+      ENAJSON = [submitJSON, projectJSON, sampleJSON];
+      console.log(ENAJSON);
+      return html;
     }
 
     function dlText(text, Name) {
@@ -1316,7 +1381,7 @@ console.log(requestBody);
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Basic '+token,
+          'Authorization': 'Basic V2ViaW4tNjA4MDI6dlhjZHJHeEJ2RkA4SFpD',
         },
         body: JSON.stringify(requestBody)
       })
@@ -1700,6 +1765,21 @@ console.log(requestBody);
         
       }
       }
+      const newSubmit = async function(id) {
+      if (ENAJSON)
+      //window.input_json =await  checkall(checklist_biosamples, json);
+      switch (id){
+        case "biosamples":
+        const text = await JSONSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2], token) ;
+        document.getElementById("subStatus").innerText = text;
+          break;
+        case "ena":
+          enatest(enaModify(json));
+          break;
+        
+      }
+      }
+
 
   </script>
 
