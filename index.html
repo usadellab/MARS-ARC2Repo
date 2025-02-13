@@ -733,7 +733,37 @@ fetchGoogleCSV();
                 $ENAassays.dataFiles.\`@id\`
                   ~> $map( function($v1, $i1, $a1){( 
                       $ENAassays.processSequence.inputs[\`@id\`=$v1].%)
-                        }))`
+                        }))`,
+  "getAllENANoneSource":`(
+          $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+          $chain:= $ENAassays.dataFiles.\`@id\`
+            ~> $map( function($v1, $i1, $a1){
+                ($searchSource:= function($outputIdList){
+                      $exists($process:=$ENAassays.processSequence.outputs[\`@id\` = $outputIdList[-1]].%) ? 
+                      $searchSource( $append($outputIdList, $process.inputs.\`@id\`)): $outputIdList 
+                      };
+                      $id:= $searchSource([$v1]);
+                      )
+                  }
+              );
+          $edgePoints :=  $distinct($chain.**);
+          $process := $edgePoints ~> $map( function($v2, $i2, $a2) {
+              { "name":$v2,"attributes": 
+              $.isa.studies.assays.**.processSequence.inputs[\`@id\` = $v2 ].%} });
+          $termDict := $.csv{id: \`Field Name\`};
+          $valueDict := $.isa.**.value{\`@id\`: annotationValue};
+          $processValue := $process.[{
+              "name":name, "attributes": attributes.parameterValues.{
+                  "id":$replace(category.[\`@id\`][0], /#ProtocolParameter\/+/, "" ),
+                  "enaName": $lookup($termDict[0],$replace(category.[\`@id\`][0], /#ProtocolParameter\/+/, "" ) )[0],
+                  "value": $lookup($valueDict, value.[\`@id\`][0]) }} ]  ;
+          $experiments:= $processValue ~> $map(function($v3, $i3, $a3) {
+           {"name":$v3.name, "attr": $v3.attributes[$contains(enaName, "Library")]}
+          });
+          $jsonExport := $experiments.{ "name": name ,"attr": attr{ enaName : value }};
+            $jsonExport[attr != {}]
+                  )`
+
     }
 
     var checklist_biosamples = [
@@ -1207,6 +1237,12 @@ fetchGoogleCSV();
     return term;
   }
 
+  async function XMLPrepare(isaJSON){
+    const JSONoutput = await jCheck( isaJSON, isaMapping["getAllENANoneSource"] ); 
+    JSONoutput
+
+  }
+
     function prepareSubmissionXML(action){
       // @parameter(action string) ADD,MODIFY,CANCEL, SUPRESS, KILL, HOLD, RELEASE, PROTECT, ROLLBACK, VALIDATE,
       return `<?xml version="1.0" encoding="UTF-8"?>
@@ -1219,9 +1255,16 @@ fetchGoogleCSV();
                 </SUBMISSION>`
 
     }
-    function prepareExperimentXML(alias, lTitle, studyRef, sampleRef, lStrategy, lSource, lSelection, lLayout, inPlatform, inModel){
-      
-      return `<EXPERIMENT_SET>
+    function prepareExperimentXML( studyRef, sampleRef, noneSourceJSON){
+        let  lTitle, lStrategy, lSource, lSelection, lLayout, inPlatform, inModel;
+        let experimentText = "";
+        experimentText =+ `<EXPERIMENT_SET>`;
+        for (submits of noneSourceJSON)  {
+          if (submits.) 
+
+        }
+
+        `<EXPERIMENT_SET>
           <EXPERIMENT alias="`+alias+`">
               <TITLE>`+lTitle+`</TITLE>
               <STUDY_REF accession="`+projectRef+ // SRP017801
@@ -1254,6 +1297,7 @@ fetchGoogleCSV();
               </EXPERIMENT_ATTRIBUTES>
           </EXPERIMENT>
         </EXPERIMENT_SET>`
+      return experimentText
 
     }
     async function makeSampleTable(json){
@@ -1442,6 +1486,32 @@ fetchGoogleCSV();
             'Accept': 'application/json',
           },
           body: JSON.stringify(requestBody)
+        })
+        const text = await response.text();
+        console.log(text);
+        return text;
+    }
+
+    async function XMLSubmit(submitXML, experimentXML, runXML, sampleJSON){
+
+      var data = new FormData();
+      data.append("SUBMISSION", new Blob([submitXML]), "@submission.xml" );
+      data.append("EXPERIMENT",new  Blob([experimentXML]), "@experiment.xml" );
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const token = btoa(username+":"+password);
+      console.log("token is : "+ token);
+      // Construct the request body
+        console.log(requestBody);
+        // Send the POST request using Fetch API
+        const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Basic '+token,
+            'Accept': 'application/json',
+          },
+          body: data
         })
         const text = await response.text();
         console.log(text);
@@ -1832,13 +1902,11 @@ fetchGoogleCSV();
         document.getElementById("subStatus").innerText = text;
           break;
         case "ena":
-          enatest(enaModify(json));
-          break;
-        
+          const text2 = await XMLSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2]) ;
+          document.getElementById("subStatus").innerText = text2;
+          break;        
+        }
       }
-      }
-
-
   </script>
 
   <!-- Button trigger modal -->
