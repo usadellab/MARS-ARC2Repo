@@ -339,7 +339,7 @@
                 </div> 
                 <button class="btn btn-primary" onclick="newSubmit('biosamples')">Submit</button>
                 <br>
-                DataPLANT -> ENA, click <a href="#" onclick="newSubmit('ena')">here</a>
+                DataPLANT -> ENA, click <a href="#" onclick='newSubmit("ena")'>here</a>
                 <!-- <br>
                 DataPLANT -> BioSamples (new), click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'dataplan.top')) ">here</a>
                 <br>
@@ -1332,20 +1332,19 @@ fetchGoogleCSV();
         `;
         
         runText += `
-        <RUN_SET>
           <RUN alias="run_`+identifier+alias+`" center_name="">
               <EXPERIMENT_REF refname="experiment_`+identifier+alias+`"/>
               <DATA_BLOCK>
                   <FILES>`
-        for (file of submits.files) {
-          const fileType = file.split(".").slice(-1);
-          runText += `<FILE filename="`+file+`" filetype="`+fileType+`"
+        
+          const fileType = submits.files.split(".").slice(-1);
+          runText += `<FILE filename="`+submits.files+`" filetype="fastq"
                           checksum_method="MD5" checksum="`+checkSum+`"/>`
-        }             
+                  
         runText +=`</FILES>
               </DATA_BLOCK>
           </RUN>
-      </RUN_SET>`
+      `
 
         };
         experimentText += `</EXPERIMENT_SET>`;
@@ -1577,7 +1576,7 @@ fetchGoogleCSV();
         })
         const text = await response.text();
         console.log(text);
-        receipt2ref(text); 
+        //receipt2ref(text); 
         return text;
     }
 
@@ -1609,8 +1608,9 @@ fetchGoogleCSV();
 
 
 
-    async function XMLSubmit(submitXML, experimentXML, runXML){
-
+    async function XMLSubmit(submitXML, xml){
+      let experimentXML = xml[0];
+      let runXML =xml[1];
       var data = new FormData();
       data.append("SUBMISSION", new  Blob([submitXML]), "@submission.xml" );
       data.append("EXPERIMENT", new  Blob([experimentXML]), "@experiment.xml" );
@@ -2020,7 +2020,9 @@ fetchGoogleCSV();
         document.getElementById("subStatus").innerText = text;
           break;
         case "ena":
-          const text2 = await XMLSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2]) ;
+        var xml1 =  await prepareExperimentXML("ERP169184", "ERS31268127", window.isaJSON);
+        var xml2 = prepareSubmissionXML("ADD");
+        const text2 = await XMLSubmit(xml2, xml1); 
           document.getElementById("subStatus").innerText = text2;
           break;        
         }
