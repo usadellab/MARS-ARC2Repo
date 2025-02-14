@@ -563,7 +563,7 @@
       //
     }
     ];
-    var isaJSON ,ENAJSON, ENAXML;
+    var isaJSON ,ENAJSON, ENAXML, JSON4XML, refs={};
     var googleJSON;
 
 function csvJSON(csv){
@@ -734,6 +734,7 @@ fetchGoogleCSV();
                   ~> $map( function($v1, $i1, $a1){( 
                       $ENAassays.processSequence.inputs[\`@id\`=$v1].%)
                         }))`,
+
             "getAllENANoneSource":`(
               $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
               $chain:= $ENAassays.dataFiles.\`@id\`
@@ -753,15 +754,29 @@ fetchGoogleCSV();
               $termDict := $.csv{id: \`Field Name\`};
               $valueDict := $.isa.**.value{\`@id\`: annotationValue};
               $processValue := $process.[{
-                  "name":name, "attributes": attributes.parameterValues.{
+                  "name":name, "file": attributes.outputs.\`@id\`,"attributes": attributes.parameterValues.{
                       "id":$replace(category.[\`@id\`][0], /#ProtocolParameter\\/+/, "" ),
                       "enaName": $lookup($termDict[0],$replace(category.[\`@id\`][0], /#ProtocolParameter\\/+/, "" ) )[0],
                       "value": $lookup($valueDict, value.[\`@id\`][0]) }} ]  ;
               
-              $experiments:= $processValue ~> $map(function($v3, $i3, $a3) { {"name":$v3.name, "attr": $v3["Library source" in attributes.enaName].attributes}});
-              $runs:= $processValue ~> $map(function($v3, $i3, $a3) { {"name":$v3.name, "attr": $v3[ $not("Library source" in attributes.enaName)].attributes}});
-              {"experiments":$experiments[attr],"runs": $runs[attr]} 
-          )`
+              $experiments:= $processValue ~> $map(function($v3, $i3, $a3) { {"name":$v3.name, "files":$v3.file, "attr": $v3["Library source" in attributes.enaName].attributes}});
+              $analysis:= $processValue ~> $map(function($v3, $i3, $a3) { {"name":$v3.name ,"files":$v3.file, "attr": $v3[ $not("Library source" in attributes.enaName)].attributes}});
+              {"experiments":[$experiments[attr]],"analysis": [$analysis[attr]] };
+          )`,
+          "getUnique": `(
+              $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+              $chain:= $ENAassays.dataFiles.\`@id\`
+                ~> $map( function($v1, $i1, $a1){
+                    ($searchSource:= function($outputIdList){
+                          $exists($process:=$ENAassays.processSequence.outputs[\`@id\` = $outputIdList[-1]].%) ? 
+                          $searchSource( $append($outputIdList, $process.inputs.\`@id\`)): $outputIdList 
+                          };
+                          $id:= $searchSource([$v1]);
+                          )
+                      }
+                  );
+              $edgePoints :=  $distinct($chain.**);
+              )`
 
       }
 
@@ -803,7 +818,6 @@ fetchGoogleCSV();
         "jsonata" : '$assert ($count($.investigation.studies)=1, "error. More than one studies are found" )',
         "fixfunction" : '$~> |$.investigation | {"studies" : [$.studies[0]]} |'
       },
-      
       {
         "description": "To check if all investigation.studies.materials.sources have at least one characteristics",
         "jsonata": '$assert($count($.investigation.studies.materials.sources[$lookup("characteristics")]) = $count($.investigation.studies.materials.sources), "Not all sources in materials have characteristics ")',
@@ -1268,12 +1282,12 @@ fetchGoogleCSV();
 
     async function prepareExperimentXML( projectRef, sampleRef, isaJSON){
         
-      const JSONoutput = await jCheck( isaJSON, isaMapping["getAllENANoneSource"] ); 
-
-        var experimentText =`<EXPERIMENT_SET>`;
-
-        
-        for (submits of JSONoutput.experiments)  {
+      window.JSON4XML = await jCheck( isaJSON, isaMapping["getAllENANoneSource"] ); 
+        const identifier = isaJSON.isa.identifier;
+        let experimentText =`<EXPERIMENT_SET>`;
+        let runText =`<RUN_SET>`;
+       
+        for (submits of window.JSON4XML.experiments)  {
           //if (submits.) 
           const alias = submits.name;
           const lName  = getExperimentValue("Library name", submits.attr);
@@ -1284,7 +1298,7 @@ fetchGoogleCSV();
           const instrument  = getExperimentValue("Instrument model", submits.attr);
           const checkSum  = getExperimentValue("File checksum", submits.attr);
           experimentText +=`
-          <EXPERIMENT alias="`+alias+`">
+          <EXPERIMENT alias="experiment_`+identifier+alias+`">
               <TITLE>`+alias+`</TITLE>
               <STUDY_REF accession="`+projectRef+ // SRP017801
               `"/> 
@@ -1316,23 +1330,67 @@ fetchGoogleCSV();
               </EXPERIMENT_ATTRIBUTES>
           </EXPERIMENT>
         `;
+        
+        runText += `
+        <RUN_SET>
+          <RUN alias="run_`+identifier+alias+`" center_name="">
+              <EXPERIMENT_REF refname="experiment_`+identifier+alias+`"/>
+              <DATA_BLOCK>
+                  <FILES>`
+        for (file of submits.files) {
+          const fileType = file.split(".").slice(-1);
+          runText += `<FILE filename="`+file+`" filetype="`+fileType+`"
+                          checksum_method="MD5" checksum="`+checkSum+`"/>`
+        }             
+        runText +=`</FILES>
+              </DATA_BLOCK>
+          </RUN>
+      </RUN_SET>`
 
-        console.log(experimentText);
         };
         experimentText += `</EXPERIMENT_SET>`;
-        console.log(experimentText);
-        return experimentText;
-
-       
-      
-
+        runText += `</RUN_SET>`;
+        return [experimentText, runText];
     }
+
+    async function prepareAnalysisXML( projectRef, sampleRef, runRef ){
+      let anaText =`<ANALYSIS_SET>`;
+        for (ana of window.JSON4XML.analysis)  {
+          anaText += `
+            <ANALYSIS alias="`+ana.name+`">
+            <TITLE>`+ana.name+`</TITLE>
+            <DESCRIPTION>`+ana.name+`</DESCRIPTION>
+            <STUDY_REF accession="`+projectRef+`"/>
+            <SAMPLE_REF accession="`+sampleRef+`"/>
+            <RUN_REF accession="`+runRef+`"/>
+            <ANALYSIS_TYPE>
+                <SEQUENCE_ANNOTATION/>
+            </ANALYSIS_TYPE>
+            <FILES>
+                <FILE filename="`+ana.file+`" filetype="tab" checksum_method="MD5"
+                    checksum="not provided"/>
+            </FILES>`
+            for (att of  ana.attr){
+              anaText += `<ANALYSIS_ATTRIBUTE>
+                            <TAG>`+att.enaName+`</TAG>
+                            <VALUE>`+att.value+`</VALUE>
+                          </ANALYSIS_ATTRIBUTE>`
+            }
+            anaText += `</ANALYSIS>`
+    }
+    anaText +=  `</ANALYSIS_SET>`
+    return anaText;
+  }
+    
+
     async function makeSampleTable(newJson){
       //console.log("input isa json");
       //console.log(json);
+      const unique = await jCheck(newJson, isaMapping.getUnique);
+      unique.forEach( function(v1,i1,ai) {console.log(v1); window.refs[v1] = {} } )
       let sampleJSON=[];
       
-      JSONataExport[0] = await jCheck(newJson, isaMapping["getAllSources"])
+      JSONataExport[0] = await jCheck(newJson, isaMapping.getAllSources);
       let html="";
       let sourceList =[];
       JSONataExport[0].forEach((v,i,a) => {
@@ -1487,7 +1545,11 @@ fetchGoogleCSV();
       };
     }
     
+    function receipt2ref(){
 
+
+
+    }
 
 
 
@@ -1515,14 +1577,44 @@ fetchGoogleCSV();
         })
         const text = await response.text();
         console.log(text);
+        receipt2ref(text); 
         return text;
     }
 
-    async function XMLSubmit(submitXML, experimentXML){
+    async function anaXMLSubmit(submitXML, anaXML){
 
       var data = new FormData();
-      data.append("SUBMISSION", new Blob([submitXML]), "@submission.xml" );
-      data.append("EXPERIMENT",new  Blob([experimentXML]), "@experiment.xml" );
+      data.append("SUBMISSION", new  Blob([submitXML]), "@submission.xml" );
+      data.append("ANALYSIS", new  Blob([anaXML]), "@analysis.xml" );
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const token = btoa(username+":"+password);
+      console.log("token is : "+ token);
+      // Construct the request body
+        //console.log(requestBody);
+        // Send the POST request using Fetch API
+        const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Basic '+token,
+            'Accept': 'application/json',
+          },
+          body: data
+        })
+        const text = await response.text();
+        console.log(text);
+        return text;
+      }
+
+
+
+    async function XMLSubmit(submitXML, experimentXML, runXML){
+
+      var data = new FormData();
+      data.append("SUBMISSION", new  Blob([submitXML]), "@submission.xml" );
+      data.append("EXPERIMENT", new  Blob([experimentXML]), "@experiment.xml" );
+      data.append("RUN",        new  Blob([runXML]), "@run.xml" );
 
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
