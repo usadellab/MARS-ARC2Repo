@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2025-02-15T12:44:05.855Z" submissionFile="@submission.xml" success="true">
+<EXPERIMENT accession="ERX13776692" alias="experiment_MARS_ENA-Metabolights#Sample_sample1" status="PRIVATE"/>
+<EXPERIMENT accession="ERX13776693" alias="experiment_MARS_ENA-Metabolights#Sample_sample2" status="PRIVATE"/>
+<RUN accession="ERR14375819" alias="run_MARS_ENA-Metabolights#Sample_sample1" status="PRIVATE"/>
+<RUN accession="ERR14375820" alias="run_MARS_ENA-Metabolights#Sample_sample2" status="PRIVATE"/>
+<SUBMISSION accession="ERA31148173" alias="SUBMISSION-15-02-2025-12:44:02:873"/>
+<MESSAGES>
+<INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+</MESSAGES>
+<ACTIONS>ADD</ACTIONS>
+</RECEIPT>

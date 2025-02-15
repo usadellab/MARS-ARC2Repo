@@ -1366,16 +1366,17 @@ fetchGoogleCSV();
                 <SEQUENCE_ANNOTATION/>
             </ANALYSIS_TYPE>
             <FILES>
-                <FILE filename="`+ana.file+`" filetype="tab" checksum_method="MD5"
+                <FILE filename="`+ana.files+`" filetype="tab" checksum_method="MD5"
                     checksum="not provided"/>
-            </FILES>`
+            </FILES>
+            <ANALYSIS_ATTRIBUTES>`
             for (att of  ana.attr){
               anaText += `<ANALYSIS_ATTRIBUTE>
                             <TAG>`+att.enaName+`</TAG>
                             <VALUE>`+att.value+`</VALUE>
                           </ANALYSIS_ATTRIBUTE>`
             }
-            anaText += `</ANALYSIS>`
+            anaText += `</ANALYSIS_ATTRIBUTES></ANALYSIS>`
     }
     anaText +=  `</ANALYSIS_SET>`
     return anaText;
@@ -2020,10 +2021,15 @@ fetchGoogleCSV();
         document.getElementById("subStatus").innerText = text;
           break;
         case "ena":
-        var xml1 =  await prepareExperimentXML("ERP169184", "ERS31268127", window.isaJSON);
+        var xml1 =  await prepareExperimentXML("ERP169258", "ERS31268746", window.isaJSON);
         var xml2 = prepareSubmissionXML("ADD");
         const text2 = await XMLSubmit(xml2, xml1); 
           document.getElementById("subStatus").innerText = text2;
+          case "ena-analysis":
+        var xml1 =  await prepareAnalysisXML("ERP169258", "ERS31268746", "ERR14375819");
+        var xml2 = prepareSubmissionXML("ADD");
+        const text3 = await anaXMLSubmit(xml2, xml1); 
+          document.getElementById("subStatus").innerText = text3;
           break;        
         }
       }
