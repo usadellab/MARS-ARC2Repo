@@ -339,7 +339,9 @@
                 </div> 
                 <button class="btn btn-primary" onclick="newSubmit('biosamples')">Submit</button>
                 <br>
-                DataPLANT -> ENA, click <a href="#" onclick='newSubmit("ena")'>here</a>
+                DataPLANT -> ENA experiment and run, click <button class="btn btn-primary" onclick='newSubmit("ena")'> Submit</button>
+                <br>
+                 DataPLANT -> ENA , click <button class="btn btn-primary" onclick='newSubmit("ena-analysis")'>Submit</button>
                 <!-- <br>
                 DataPLANT -> BioSamples (new), click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'dataplan.top')) ">here</a>
                 <br>
@@ -556,6 +558,7 @@
     var alert_place_holder = document.getElementById('alertPlace');
     var JSONataExport= [];
     var log_messages = [];
+    var returnMessage= {};
     var current_file;
     var steps = [{
       title: "Converter and validators",
@@ -563,7 +566,16 @@
       //
     }
     ];
-    var isaJSON ,ENAJSON, ENAXML, JSON4XML, refs={};
+    var isaJSON ,ENAJSON, ENAXML, JSON4XML;
+    var  refs={
+      bioproject:{children:{}, refs:{}},
+      biosamples:{children:{}, refs:{}},
+      ENAexperiment:{children:{}, refs:{}},
+      ENArun:{children:{}, refs:{}},
+      ENAanalysis:{children:{}, refs:{}},
+      chain:{},
+      children:{}
+    };
     var googleJSON;
 
 function csvJSON(csv){
@@ -776,7 +788,30 @@ fetchGoogleCSV();
                       }
                   );
               $edgePoints :=  $distinct($chain.**);
-              )`
+              )`,
+            "getChain" : `($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+              $chain:= $ENAassays.dataFiles.\`@id\`
+                ~> $map( function($v1, $i1, $a1){
+                    ($searchSource:= function($outputIdList){
+                          $exists($process:=$ENAassays.processSequence.outputs[\`@id\` = $outputIdList[-1]].%) ? 
+                          $searchSource( $append($outputIdList, $process.inputs.\`@id\`)): $outputIdList 
+                          };
+                          $id:= $searchSource([$v1]);
+                          )
+                      }
+                  );
+                  $materials := $.isa.studies.materials;
+            $sources:= $zip([$materials.samples.\`@id\`],[$materials.sources.\`@id\`] );
+            $maps := $sources ~> $map( function($v1, $i1, $a1){
+                {$v1[0] : $v1[1]}
+            });
+            $allchain :=$chain ~> $map( function($v1, $i1, $a1){
+                $v1 ~> $append( $lookup($maps, $v1[-1] ))
+            })  ;
+               $edgePoints :=  $distinct($allchain.**);
+            {"allchain": $allchain, "children":$edgePoints}
+                  )`
+                       
 
       }
 
@@ -1025,8 +1060,8 @@ fetchGoogleCSV();
     async function isaVis(json, instance) {
       json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
       window.isaJSON ={ "isa" : json, "csv":googleJSON };
-      const html1 = await makeSampleTable(window.isaJSON);
-      document.getElementById("sampleTable").innerHTML = html1;
+      await makeSampleTable(window.isaJSON);
+      //document.getElementById("sampleTable").innerHTML = html1;
       window.input_json = await checkall(checklist_biosamples, json, instance);
       window.orderMax = 0;
       window.path = 0;
@@ -1280,7 +1315,7 @@ fetchGoogleCSV();
       }
     }
 
-    async function prepareExperimentXML( projectRef, sampleRef, isaJSON){
+    async function prepareExperimentXML( isaJSON){
         
       window.JSON4XML = await jCheck( isaJSON, isaMapping["getAllENANoneSource"] ); 
         const identifier = isaJSON.isa.identifier;
@@ -1300,11 +1335,11 @@ fetchGoogleCSV();
           experimentText +=`
           <EXPERIMENT alias="experiment_`+identifier+alias+`">
               <TITLE>`+alias+`</TITLE>
-              <STUDY_REF accession="`+projectRef+ // SRP017801
+              <STUDY_REF accession="`+window.refs.bioproject.children[alias]+ // SRP017801
               `"/> 
               <DESIGN>
                   <DESIGN_DESCRIPTION/>
-                  <SAMPLE_DESCRIPTOR accession="`+sampleRef+ //SRS462875
+                  <SAMPLE_DESCRIPTOR accession="`+window.refs.biosamples.children[alias]+ //SRS462875
                   `"/>
                   <LIBRARY_DESCRIPTOR>
                       <LIBRARY_NAME/>
@@ -1352,22 +1387,24 @@ fetchGoogleCSV();
         return [experimentText, runText];
     }
 
-    async function prepareAnalysisXML( projectRef, sampleRef, runRef ){
+    async function prepareAnalysisXML(){
       let anaText =`<ANALYSIS_SET>`;
         for (ana of window.JSON4XML.analysis)  {
+          const checksum = getExperimentValue("File checksum",JSON4XML.analysis[0].attr );
+          const alias = ana.name;
           anaText += `
-            <ANALYSIS alias="`+ana.name+`">
-            <TITLE>`+ana.name+`</TITLE>
-            <DESCRIPTION>`+ana.name+`</DESCRIPTION>
-            <STUDY_REF accession="`+projectRef+`"/>
-            <SAMPLE_REF accession="`+sampleRef+`"/>
-            <RUN_REF accession="`+runRef+`"/>
+            <ANALYSIS alias="`+alias+`">
+            <TITLE>`+alias+`</TITLE>
+            <DESCRIPTION>`+alias+`</DESCRIPTION>
+            <STUDY_REF accession="`+refs.bioproject.children[alias]+`"/>
+            <SAMPLE_REF accession="`+refs.biosamples.children[alias]+`"/>
+            <RUN_REF accession="`+refs.ENArun.children[alias]+`"/>
             <ANALYSIS_TYPE>
                 <SEQUENCE_ANNOTATION/>
             </ANALYSIS_TYPE>
             <FILES>
                 <FILE filename="`+ana.files+`" filetype="tab" checksum_method="MD5"
-                    checksum="not provided"/>
+                    checksum="`+checksum+`"/>
             </FILES>
             <ANALYSIS_ATTRIBUTES>`
             for (att of  ana.attr){
@@ -1386,18 +1423,21 @@ fetchGoogleCSV();
     async function makeSampleTable(newJson){
       //console.log("input isa json");
       //console.log(json);
-      const unique = await jCheck(newJson, isaMapping.getUnique);
-      unique.forEach( function(v1,i1,ai) {console.log(v1); window.refs[v1] = {} } )
+      const chain = await jCheck(newJson, isaMapping.getChain);
+      window.refs.chain = chain.allchain;
+      window.refs.children = chain.children;
+      window.refs.bioproject.refs["PLANTdataHub_"+isaJSON.isa.identifier]="not submitted";
+
       let sampleJSON=[];
       
-      JSONataExport[0] = await jCheck(newJson, isaMapping.getAllSources);
-      let html="";
+      JSONataExport = await jCheck(newJson, isaMapping.getAllSources);
+      //let html="";
       let sourceList =[];
-      JSONataExport[0].forEach((v,i,a) => {
-        let tableHTML="";
+      JSONataExport.forEach((v,i,a) => {
+        //let tableHTML="";
         let attributes = [];
         let taxonId = "not provided";
-        tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
+        // tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
       
         //console.log(v[2]);
         v[2]["source"][0].characteristics.forEach(
@@ -1411,7 +1451,7 @@ fetchGoogleCSV();
                     "tag": tag,
                     "value": value3
                 })
-            tableHTML += addTableRow(i2+1, tag, value3)
+            // tableHTML += addTableRow(i2+1, tag, value3)
           }
         );
         //console.log(v[2]["source"][1]);
@@ -1422,7 +1462,7 @@ fetchGoogleCSV();
                     "tag": tag,
                     "value": v3.value.annotationValue
                 });
-            tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
+            // tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
           }
         )
         const alias = v[2]["source"][0]["@id"];
@@ -1430,9 +1470,8 @@ fetchGoogleCSV();
         //console.log(attributes);
       
         
-      tableHTML += `</tbody>
-      </table>`;
-      html +=tableHTML
+      // tableHTML += `</tbody></table>`;
+      // html +=tableHTML
       if( !(sourceList.includes(alias))){
       let singleSample = PrepareSampleJSON(alias, title, taxonId, attributes);
       sampleJSON=sampleJSON.concat(singleSample) ;
@@ -1451,7 +1490,7 @@ fetchGoogleCSV();
       const projectJSON = await PrepareProjectJSON(alias, name, title, description, id) ;
       ENAJSON = [submitJSON, projectJSON, sampleJSON];
       console.log(ENAJSON);
-      return html;
+      // return html;
     }
 
     function dlText(text, Name) {
@@ -1545,13 +1584,61 @@ fetchGoogleCSV();
       };
     }
     
-    function receipt2ref(){
-
-
-
+    function  json2ref( text){
+        const json1 = JSON.parse(text);
+        try {
+          if ( ((json1.actions.includes("ADD")) || ( json1.actions.includes("MODIFY")) ) && (json1.success == true) ){
+            for (sample of json1.samples){
+              window.refs.bioproject.refs[sample.alias] = json1.projects[0].accession;
+              window.refs.biosamples.refs[sample.alias]={};
+              window.refs.biosamples.refs[sample.alias]["accession"] = sample.accession;
+              window.refs.biosamples.refs[sample.alias]["externalAccession"] = sample.externalAccession;
+              for (chain of window.refs.chain){
+                if (chain.includes(sample.alias)){
+                  chain.forEach((ele)=> { window.refs.biosamples.children[ele] = sample.accession; window.refs.bioproject.children[ele] = json1.projects[0].accession })
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(error)
+        }
     }
 
+    function  experimentXML2ref( text){
+        const parser = new DOMParser();
+        const receiptEle = parser.parseFromString(text, "text/xml");
+        const success = receiptEle.querySelector("RECEIPT").getAttribute("success");
+        const action = receiptEle.querySelector("ACTIONS").innerHTML;
+        const experiments =  receiptEle.querySelectorAll("EXPERIMENT");
+        const runs =  receiptEle.querySelectorAll("RUN");
+        const prefix = isaJSON.isa.identifier;
 
+        try {
+          if ( ((action =="ADD") || ( action =="MODIFY"))&& (success == "true")  ){
+            for (exp of experiments){
+              const alias = exp.getAttribute("alias").replace("experiment_"+prefix, "")
+              window.refs.ENAexperiment.refs[alias] = exp.getAttribute("accession");
+              for (chain of window.refs.chain){
+                if (chain.includes(alias)){
+                  chain.forEach((ele)=> { window.refs.ENAexperiment.children[ele] = exp.getAttribute("accession") })
+                }
+              }
+            };
+            for (exp of runs){
+              const alias = exp.getAttribute("alias").replace("run_"+prefix, "")
+              window.refs.ENArun.refs[alias] = exp.getAttribute("accession");
+              for (chain of window.refs.chain){
+                if (chain.includes(alias)){
+                  chain.forEach((ele)=> { window.refs.ENArun.children[ele] = exp.getAttribute("accession") })
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(error)
+        }
+    }
 
     async function JSONSubmit(submitJSON, projectJSON, sampleJSON){
       const username = document.getElementById('username').value;
@@ -1576,8 +1663,8 @@ fetchGoogleCSV();
           body: JSON.stringify(requestBody)
         })
         const text = await response.text();
-        console.log(text);
-        //receipt2ref(text); 
+        window.returnMessage["biosamples"] = text;
+        json2ref(text); 
         return text;
     }
 
@@ -1603,7 +1690,7 @@ fetchGoogleCSV();
           body: data
         })
         const text = await response.text();
-        console.log(text);
+        
         return text;
       }
 
@@ -1633,7 +1720,8 @@ fetchGoogleCSV();
           body: data
         })
         const text = await response.text();
-        console.log(text);
+        experimentXML2ref( text);
+        returnMessage["experiment"] = text;
         return text;
     }
 
@@ -2021,12 +2109,12 @@ fetchGoogleCSV();
         document.getElementById("subStatus").innerText = text;
           break;
         case "ena":
-        var xml1 =  await prepareExperimentXML("ERP169258", "ERS31268746", window.isaJSON);
+        var xml1 =  await prepareExperimentXML( window.isaJSON);
         var xml2 = prepareSubmissionXML("ADD");
         const text2 = await XMLSubmit(xml2, xml1); 
           document.getElementById("subStatus").innerText = text2;
           case "ena-analysis":
-        var xml1 =  await prepareAnalysisXML("ERP169258", "ERS31268746", "ERR14375819");
+        var xml1 =  await prepareAnalysisXML();
         var xml2 = prepareSubmissionXML("ADD");
         const text3 = await anaXMLSubmit(xml2, xml1); 
           document.getElementById("subStatus").innerText = text3;
