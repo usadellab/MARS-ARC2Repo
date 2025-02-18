@@ -151,8 +151,8 @@
           #ccc 20%);
     }
 
-    .scrollTable{
-      max-height : 200px;
+    .scrollTable {
+      max-height: 200px;
       overflow-y: scroll;
       max-width: 80vw;
     }
@@ -161,7 +161,8 @@
   <!--<script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>-->
   <link href="./css/bootstrap.min.css" rel="stylesheet">
   <script src="./js/bootstrap.bundle.min.js"></script>
-  <link href="./css/custom2607.css" rel="stylesheet" />
+  <script src="./js/vis-network.min.js"></script>
+  <link href="./css/custom0218.css" rel="stylesheet" />
   <link href="./css/bs5-intro-tour.css" rel="stylesheet" />
   <script src="./js/bs5-intro-tour.js" type="text/javascript" charset="utf-8"></script>
   <!--script src="js/example.js" type="text/javascript" charset="utf-8"></script-->
@@ -290,59 +291,64 @@
         </div>
       </form>
       <div class="col-6 m-auto">
-      <div class="accordion" id="accordionExample">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleTest" aria-expanded="true" aria-controls="exampleTest">
-              Use prepared ISA-JSON example to test the basic functions
-            </button>
-          </h2>
-          <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-              <div class="center">
-                DataPLANT -> BioSamples, 
-                <div class="btn-group">
-                  <button id="actionBtn1" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                   Action1: ADD
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">ADD</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">MODIFY</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">CANCEL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">SUPRESS</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">KILL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">HOLD</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">CANCEL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">RELEASE</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">PROTECT</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">ROLLBACK</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">VALIDATE</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)"  href="#">RECEIPT</a></li>
-                  </ul>
-                  <button id="actionBtn2" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Action2: HOLD
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">ADD</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">MODIFY</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">CANCEL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">SUPRESS</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">KILL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">HOLD</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">CANCEL</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">RELEASE</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">PROTECT</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">ROLLBACK</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">VALIDATE</a></li>
-                    <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)"  href="#">RECEIPT</a></li>
-                  </ul>
-                </div> 
-                <button class="btn btn-primary" onclick="newSubmit('biosamples')">Submit</button>
-                <br>
-                DataPLANT -> ENA experiment and run, click <button class="btn btn-primary" onclick='newSubmit("ena")'> Submit</button>
-                <br>
-                 DataPLANT -> ENA , click <button class="btn btn-primary" onclick='newSubmit("ena-analysis")'>Submit</button>
-                <!-- <br>
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleTest"
+                aria-expanded="true" aria-controls="exampleTest">
+                Use prepared ISA-JSON example to test the basic functions
+              </button>
+            </h2>
+            <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne"
+              data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <div class="center">
+                  DataPLANT -> BioSamples,
+                  <div class="btn-group">
+                    <button id="actionBtn1" class="btn btn-secondary dropdown-toggle" type="button"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                      Action1: ADD
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">ADD</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">MODIFY</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">CANCEL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">SUPRESS</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">KILL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">HOLD</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">CANCEL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">RELEASE</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">PROTECT</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">ROLLBACK</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">VALIDATE</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(1,this.innerHTML)" href="#">RECEIPT</a></li>
+                    </ul>
+                    <button id="actionBtn2" class="btn btn-secondary dropdown-toggle" type="button"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                      Action2: HOLD
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">ADD</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">MODIFY</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">CANCEL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">SUPRESS</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">KILL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">HOLD</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">CANCEL</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">RELEASE</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">PROTECT</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">ROLLBACK</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">VALIDATE</a></li>
+                      <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">RECEIPT</a></li>
+                    </ul>
+                  </div>
+                  <button class="btn btn-primary" onclick="newSubmit('biosamples')">Submit</button>
+                  <br>
+                  DataPLANT -> ENA experiment and run, click <button class="btn btn-primary"
+                    onclick='newSubmit("enaExp")'> Submit</button>
+                  <br>
+                  DataPLANT -> ENA , click <button class="btn btn-primary" onclick='newSubmit("enaAna")'>Submit</button>
+                  <!-- <br>
                 DataPLANT -> BioSamples (new), click <a href="#" onclick="checkall(checklist_biosamples, window.dataplant_json).then(json => submitAll('biosamples', json, 'dataplan.top')) ">here</a>
                 <br>
                 DataPLANT -> ENA, click <a href="#"
@@ -353,31 +359,32 @@
                
                 DataHub -> ENA, click <a href="#" onclick="enatest(datahub_biosamples_returned_json)">here</a>
                 <br> -->
-                <input class="btn btn-primary d-inline d-none" type="file" id="input_json" name="json" multiple />
-                <br>
+                  <input class="btn btn-primary d-inline d-none" type="file" id="input_json" name="json" multiple />
+                  <br>
 
-                <div class="d-flex justify-content-center d-none" id="waiting">
-                  <div class="spinner-grow btn-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <br>
-                    <span class="sr-only d-none">Loading...</span>
+                  <div class="d-flex justify-content-center d-none" id="waiting">
+                    <div class="spinner-grow btn-primary" style="width: 3rem; height: 3rem;" role="status">
+                      <br>
+                      <span class="sr-only d-none">Loading...</span>
+                    </div>
                   </div>
-                </div>
-                <div class="m-auto" id="xml_output">
+                  <div class="m-auto" id="xml_output">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
 
       </div>
-      
-      </div>
       <div class="row justify-content-center m-3">
         <div class="col-2">
-        <button class="btn btn-primary" style="display:inline" data-bs-toggle="modal" data-bs-target="#cModal"
-        id="cModalButton"> Start Submissions </button>
+          <button class="btn btn-primary" style="display:inline" data-bs-toggle="modal" data-bs-target="#cModal"
+            id="cModalButton"> Start Submissions </button>
+        </div>
       </div>
-      </div>
+      <div id="mynetwork"></div>
       <div id="subStatus" class="row justify-content-center m-3">
 
       </div>
@@ -491,7 +498,8 @@
         <input type="file" id="import" multiple>
       </div>
       <div class="text-center m-auto">
-        <button class="text btn btn-primary d-none" id="toSubmit" onclick="location.href=location.href.split('#')[0]+'#submit'" > 
+        <button class="text btn btn-primary d-none" id="toSubmit"
+          onclick="location.href=location.href.split('#')[0]+'#submit'">
           Start Submission
         </button>
       </div>
@@ -556,9 +564,9 @@
     var log_backup = console.log;
     var fs = FS.fs;
     var alert_place_holder = document.getElementById('alertPlace');
-    var JSONataExport= [];
+    var JSONataExport = [];
     var log_messages = [];
-    var returnMessage= {};
+    var returnMessage = {};
     var current_file;
     var steps = [{
       title: "Converter and validators",
@@ -566,96 +574,98 @@
       //
     }
     ];
-    var isaJSON ,ENAJSON, ENAXML, JSON4XML;
-    var  refs={
-      bioproject:{children:{}, refs:{}},
-      biosamples:{children:{}, refs:{}},
-      ENAexperiment:{children:{}, refs:{}},
-      ENArun:{children:{}, refs:{}},
-      ENAanalysis:{children:{}, refs:{}},
-      chain:{},
-      children:{}
+    var isaJSON, ENAJSON, ENAXML, JSON4XML;
+    var refs = {
+      bioproject: { children: {}, refs: {} },
+      biosamples: { children: {}, refs: {} },
+      ENAexperiment: { children: {}, refs: {} },
+      ENArun: { children: {}, refs: {} },
+      ENAanalysis: { children: {}, refs: {} },
+      chain: {},
+      children: {}
     };
     var googleJSON;
 
-function csvJSON(csv){
+    function csvJSON(csv) {
 
-  var lines=csv.split("\n");
+      var lines = csv.split("\n");
 
-  var result = [];
-  var headers=lines[0].split(",");
+      var result = [];
+      var headers = lines[0].split(",");
 
-  for(var i=1;i<lines.length;i++){
+      for (var i = 1; i < lines.length; i++) {
 
-      var obj = {};
-      var currentline=lines[i].split(",");
+        var obj = {};
+        var currentline = lines[i].split(",");
 
-      for(var j=0;j<headers.length;j++){
+        for (var j = 0; j < headers.length; j++) {
           obj[headers[j]] = currentline[j];
+        }
+
+        result.push(obj);
+
       }
 
-      result.push(obj);
+      //return result; //JavaScript object
+      return JSON.stringify(result); //JSON
+    }
+    function actionBtn(id, action) {
+      ENAJSON[0].actions[Number(id) - 1].type = action;
+      document.getElementById("actionBtn" + id).innerHTML = action;
 
-  }
+    }
 
-  //return result; //JavaScript object
-  return JSON.stringify(result); //JSON
-  }
-function actionBtn(id, action){
-  ENAJSON[0].actions[Number(id)-1].type= action;
-  document.getElementById("actionBtn"+id).innerHTML = action;
+    async function fetchGoogleCSV() {
+      try {
+        //read .csv file on a server
+        const target = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSelJd6uBG8Ri_vqoxawVbCmy4U5Lvc1vqwOFo7dgBz1_yWOuosL46aG9dZdIB7RvuCOzW5Vnr3ytck/pub?gid=82880550&single=true&output=csv`;
 
-}
+        const res = await fetch(target, {
 
-async function fetchGoogleCSV(){
-    try {
-      //read .csv file on a server
-      const target = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSelJd6uBG8Ri_vqoxawVbCmy4U5Lvc1vqwOFo7dgBz1_yWOuosL46aG9dZdIB7RvuCOzW5Vnr3ytck/pub?gid=82880550&single=true&output=csv`;
-
-      const res = await fetch(target, {
-      
           method: 'get',
           headers: {
-            
-              'content-type': 'text/csv;charset=UTF-8',
-          }
-      });
 
-      if (res.status === 200) {
+            'content-type': 'text/csv;charset=UTF-8',
+          }
+        });
+
+        if (res.status === 200) {
           const data = await res.text();
-          googleJSON =JSON.parse(csvJSON(data));
+          googleJSON = JSON.parse(csvJSON(data));
           //document.getElementById("submission").disabled = false;
 
-      } else {
+        } else {
           console.log(`Error code ${res.status}`);
-      }
-    } catch (err) {
-      console.log(err)
-  }
-
-}
-
-fetchGoogleCSV();
-
-    addEventListener("load", (event) => {try{var repoList;
-    fetch('https://git.nfdi4plants.org/api/v4/projects')
-      .then(data => {
-        if (data.status >= 400 && data.status < 600) {
-      throw alert("Bad response from server, please check the availability of the server");
         }
-        return data.json();
-      })
-      .then(post => {
-        window.repoList = post;
-        var tableHTML = '';
-        let newIndex = 0;
-        post.forEach((element, index) => {
-          if (element.description !== null) {
+      } catch (err) {
+        console.log(err)
+      }
+
+    }
+
+    fetchGoogleCSV();
+
+    addEventListener("load", (event) => {
+      try {
+        var repoList;
+        fetch('https://git.nfdi4plants.org/api/v4/projects')
+          .then(data => {
+            if (data.status >= 400 && data.status < 600) {
+              throw alert("Bad response from server, please check the availability of the server");
+            }
+            return data.json();
+          })
+          .then(post => {
+            window.repoList = post;
+            var tableHTML = '';
+            let newIndex = 0;
+            post.forEach((element, index) => {
+              if (element.description !== null) {
 
 
-            const pathName = element.path_with_namespace.split("/");
-            newIndex += 1;
-            tableHTML += `
+                const pathName = element.path_with_namespace.split("/");
+                newIndex += 1;
+                tableHTML += `
         <tr>
           <th scope="row">`+ newIndex + ` </th>
           <td>
@@ -672,20 +682,22 @@ fetchGoogleCSV();
           </td>
         </tr>
         `
-          }
-        }), document.getElementById("datahubTable").innerHTML = tableHTML;
-      }).catch((error) => {
-          // Your error is here!
-          alert(error)
-        });}catch(e){
+              }
+            }), document.getElementById("datahubTable").innerHTML = tableHTML;
+          }).catch((error) => {
+            // Your error is here!
+            alert(error)
+          });
+      } catch (e) {
         alert(e);
-      }});
-    
-    var isaMapping ={
+      }
+    });
+
+    var isaMapping = {
       "getFiles": `
         ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
         $files := $assays.dataFiles.\`@id\`;`,
-        "getSamples": `
+      "getSamples": `
         ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
         $files := $assays.dataFiles.\`@id\`;
         $processSequence := $assays.processSequence;
@@ -696,7 +708,7 @@ fetchGoogleCSV();
         $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
        )`,
 
-      "getSampleValue" : `
+      "getSampleValue": `
         ($assays := $.studies.assays.comments[target_repository = "ENA"].%;
         $files := $assays.dataFiles.\`@id\`;
         $processSequence := $assays.processSequence;
@@ -706,7 +718,7 @@ fetchGoogleCSV();
         $characters := $processSequence.inputs[0].characteristics;
         $characters.[\`@id\`, category.\`@id\`, value.annotationValue]
        )`,
-      "getAllSources":`
+      "getAllSources": `
             (
             $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
             $ENAassays.dataFiles.\`@id\`
@@ -747,7 +759,7 @@ fetchGoogleCSV();
                       $ENAassays.processSequence.inputs[\`@id\`=$v1].%)
                         }))`,
 
-            "getAllENANoneSource":`(
+      "getAllENANoneSource": `(
               $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
               $chain:= $ENAassays.dataFiles.\`@id\`
                 ~> $map( function($v1, $i1, $a1){
@@ -775,7 +787,7 @@ fetchGoogleCSV();
               $analysis:= $processValue ~> $map(function($v3, $i3, $a3) { {"name":$v3.name ,"files":$v3.file, "attr": $v3[ $not("Library source" in attributes.enaName)].attributes}});
               {"experiments":[$experiments[attr]],"analysis": [$analysis[attr]] };
           )`,
-          "getUnique": `(
+      "getUnique": `(
               $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
               $chain:= $ENAassays.dataFiles.\`@id\`
                 ~> $map( function($v1, $i1, $a1){
@@ -789,7 +801,7 @@ fetchGoogleCSV();
                   );
               $edgePoints :=  $distinct($chain.**);
               )`,
-            "getChain" : `($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+      "getChain": `($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
               $chain:= $ENAassays.dataFiles.\`@id\`
                 ~> $map( function($v1, $i1, $a1){
                     ($searchSource:= function($outputIdList){
@@ -810,77 +822,111 @@ fetchGoogleCSV();
             })  ;
                $edgePoints :=  $distinct($allchain.**);
             {"allchain": $allchain, "children":$edgePoints}
-                  )`
-                       
+                  )`,
+      "getTargetRepo": `$.isa.studies.assays.comments.target_repository`,
+      "getEdgelist": `( $js1:= { "investigation": $.isa.identifier,
+              "studies": $.isa.studies.{
+                  "id":\`@id\`, "process": [$zip(materials.[sources.\`@id\`], materials.[samples.\`@id\`])]},
+              "assays" : $.isa.studies.assays.{
+                  "id":\`@id\`, "process": processSequence.[inputs.\`@id\`, outputs.\`@id\`]}    
+              } ;  
+          $js2:= $js1.**.process;
+          [$js1, $js2]
+          )`,
+      "getVisjs": `( $js1:= { "investigation": $.isa.identifier,
+              "studies": $.isa.studies.{
+                  "id":\`@id\`, "process": [$zip(materials.[sources.\`@id\`], materials.[samples.\`@id\`])]},
+              "assays" : $.isa.studies.assays.{
+                  "id":\`@id\`, "process": processSequence.[inputs.\`@id\`, outputs.\`@id\`]  }    
+              } ;  
+          $sources :=  $.isa.studies.materials.sources.\`@id\`;
+          $js2:= $js1.**.process;
+          $nodes1 := $distinct($js2.*);
+          $nodes := $nodes1 ~> $map(function($v1, $i1, $a1 ) {
+              ( $sOrm := $v1 in $sources ? "source" : "material" ;
+                  {"id": $i1, "label": $v1, "arrows":"to" }
+              )} );
+          $edges1 := $nodes1 ~> $map(function($v1, $i1, $a1 ) {
+              ( 
+                { $v1 : $i1 } 
+              )} );
+          $dict1:= $merge($edges1);
+          $edge:= $js2~> $map( function($v2, $i2, $a2){
+            {"from": $lookup($dict1,$v2[0] ) , "to": $lookup($dict1,$v2[1] )    }
+          } );
+          {"nodes": $nodes, "edges": $edge}
+          )`
 
-      }
+    }
+
+
 
     var checklist_biosamples = [
       {
-        "description" : "To check if investigation exists as a wrapper",
+        "description": "Checkingif investigation exists as a wrapper",
         "key": "investigation",
         "jsonata": "$.$keys()",
         "error": "element.key + \" can not be found in\" element.jsonata",
         "fixfunction": '{"investigation":$}'
       },
       {
-        "description" : "To check if studies exsits",
+        "description": "Checkingif studies exsits",
         "key": "studies",
         "jsonata": "$.investigation.$keys()",
         "error": "element.key + \" can not be found in\" element.jsonata",
         "fixfunction": '$~>| $.investigation| {"studies":"missing_key"} |'
       },
       // {
-      //   "description" : "To check if assays exsits",
+      //   "description" : "Checkingif assays exsits",
       //   "key": "assays",
       //   "jsonata": "$.investigation.studies[0].$keys()",
       //   "error": "element.key + \" can not be found in\" element.jsonata",
       //   "fixfunction": '$assert($.investigation.studies.$keys(), "error, no assays in studies")'
       // },
-      
+
       {
-        "description" : "check if organisms are added to the $.investigation.studies.materials.sources.characteristics ",
-        "jsonata" : '$assert($boolean($.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%.category."@id".$not($contains("organism"))).$not(), "error. Organism is not found" )',
-        "fixfunction" : '$~> |$.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%|   {"category":{"@id": "#MaterialAttribute/organism/OBI:0100026" }} |'
+        "description": "check if organisms are added to the $.investigation.studies.materials.sources.characteristics ",
+        "jsonata": '$assert($boolean($.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%.category."@id".$not($contains("organism"))).$not(), "error. Organism is not found" )',
+        "fixfunction": '$~> |$.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%|   {"category":{"@id": "#MaterialAttribute/organism/OBI:0100026" }} |'
       },
       {
-        "description" : "To check if organisms exists in the ids in characteristicCategories",
-        "jsonata" : '$assert($boolean($.**.`@id`.$contains("#MaterialAttribute/OBI:0100026")).$not() , "error, no organisms in characteristicCategories")',
-        "fixfunction" : '$~>| $.**[`@id`="#MaterialAttribute/OBI:0100026"]|  {"@id":"#MaterialAttribute/organism/OBI:0100026"}  |'
+        "description": "Checkingif organisms exists in the ids in characteristicCategories",
+        "jsonata": '$assert($boolean($.**.`@id`.$contains("#MaterialAttribute/OBI:0100026")).$not() , "error, no organisms in characteristicCategories")',
+        "fixfunction": '$~>| $.**[`@id`="#MaterialAttribute/OBI:0100026"]|  {"@id":"#MaterialAttribute/organism/OBI:0100026"}  |'
       },
       {
-        "description" : "To check if there are multiple studies exist. Only the first will be slected if there is not submission specifications",
-        "jsonata" : '$assert ($count($.investigation.studies)=1, "error. More than one studies are found" )',
-        "fixfunction" : '$~> |$.investigation | {"studies" : [$.studies[0]]} |'
+        "description": "Checkingif there are multiple studies exist. Only the first will be slected if there is not submission specifications",
+        "jsonata": '$assert ($count($.investigation.studies)=1, "error. More than one studies are found" )',
+        "fixfunction": '$~> |$.investigation | {"studies" : [$.studies[0]]} |'
       },
       {
-        "description": "To check if all investigation.studies.materials.sources have at least one characteristics",
+        "description": "Checkingif all investigation.studies.materials.sources have at least one characteristics",
         "jsonata": '$assert($count($.investigation.studies.materials.sources[$lookup("characteristics")]) = $count($.investigation.studies.materials.sources), "Not all sources in materials have characteristics ")',
         "fixfunction": '$~>|  $.investigation.studies.materials| {"sources" : sources[$lookup("characteristics")] }  |'
 
-      },{
-        "description" : "To evaluate the type of \"value\" key, try auto fix if the value is numbers or strings",
-        "jsonata" : '$assert(($nopeople := $ ~> |$.investigation.studies[0]| {"people":[]} |; $not($exists($nopeople.investigation.studies.**[($type(value) = "string") or ($type(value) = "number")]))), "error, the strings or numbers type of value exist in the values")',
+      }, {
+        "description": "To evaluate the type of \"value\" key, try auto fix if the value is numbers or strings",
+        "jsonata": '$assert(($nopeople := $ ~> |$.investigation.studies[0]| {"people":[]} |; $not($exists($nopeople.investigation.studies.**[($type(value) = "string") or ($type(value) = "number")]))), "error, the strings or numbers type of value exist in the values")',
         "error": "string and number values exist in the 'value' keys",
-        "fixfunction" : '($people := $.investigation.studies.people ;$c1 := $ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }| ;  $c1 ~> | $.investigation.studies| {"people" : $people} | )'
-      },{
-        "description": "To check if all investigation.studies.materials.sources.characteristics.category has correct format",
-        "jsonata" : '($p := $.investigation.studies.materials.sources.characteristics; $assert( $count($p) = $count($p.category) , "Some characteristics do not have categories" ))',
-        "fixfunction" :'($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : category}; $getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"category": `@id`.$getvalue($) }| )'
+        "fixfunction": '($people := $.investigation.studies.people ;$c1 := $ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }| ;  $c1 ~> | $.investigation.studies| {"people" : $people} | )'
+      }, {
+        "description": "Checkingif all investigation.studies.materials.sources.characteristics.category has correct format",
+        "jsonata": '($p := $.investigation.studies.materials.sources.characteristics; $assert( $count($p) = $count($p.category) , "Some characteristics do not have categories" ))',
+        "fixfunction": '($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : category}; $getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"category": `@id`.$getvalue($) }| )'
       },
       {
-        "description": "To check investigation.studies.materials.sources.characteristics.value ",
-        "jsonata" : '($p := $.investigation.studies.materials.sources.characteristics[[$contains(`@id`, "Empty" ).$not()]]; $assert( $count($p) = $count($p.value) , "Some characteristics do not have values" ))',
-        "fixfunction" :'($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : value};$getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"value": `@id`.$getvalue($) }| )'
+        "description": "Checkinginvestigation.studies.materials.sources.characteristics.value ",
+        "jsonata": '($p := $.investigation.studies.materials.sources.characteristics[[$contains(`@id`, "Empty" ).$not()]]; $assert( $count($p) = $count($p.value) , "Some characteristics do not have values" ))',
+        "fixfunction": '($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : value};$getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"value": `@id`.$getvalue($) }| )'
       }
     ]
 
     var checklist_ena = [
-    {
-        "description" : "evaluate the type of \"value\" key, try auto fix if the value is ",
-        "jsonata" : '$assert($.studies.**[($type(value) = "string") or ($type(value) = "number")], "error")',
+      {
+        "description": "evaluate the type of \"value\" key, try auto fix if the value is ",
+        "jsonata": '$assert($.studies.**[($type(value) = "string") or ($type(value) = "number")], "error")',
         "error": "string and number values exist in the 'value' keys",
-        "fixfunction" : '$ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }|'
+        "fixfunction": '$ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }|'
       }
 
 
@@ -889,7 +935,7 @@ fetchGoogleCSV();
       keyboard: true, show: false
     });
     function setRange(ele) {
-      loading.show()
+      loading.show();
       const order = Number(ele.value);
       const max = Number(ele.max);
       const id = order - 1;
@@ -942,43 +988,43 @@ fetchGoogleCSV();
       var result = await jsonata(expression).evaluate(json);
       return result;
     }
-    async function checkall(checklist, isa, instance="cplantbox.com") {
+    async function checkall(checklist, isa, instance = "cplantbox.com") {
       window.alert_place_holder.innerHTML = "";
       var passed = 0;
       for (const [index, element] of Object.entries(checklist,)) {
-        try { if(element.key){
-              await jCheck(isa, checkHas(element.key, element.jsonata, element.key + " can not be found in " + element.jsonata));
-              passed += 1;
-              bootAlert(element.description +". [Test passed]", "success")
+        try {
+          if (element.key) {
+            await jCheck(isa, checkHas(element.key, element.jsonata, element.key + " can not be found in " + element.jsonata));
+            passed += 1;
+            bootAlert(element.description + ". [Test passed]", "success")
 
-            } else {
-              await jCheck(isa, element.jsonata);
-              passed += 1;
-              bootAlert(element.description +". [Test passed]", "success")
-            } 
+          } else {
+            await jCheck(isa, element.jsonata);
+            passed += 1;
+            bootAlert(element.description + ". [Test passed]", "success")
+          }
         } catch (e) {
           try {
             isa = await jCheck(isa, element.fixfunction);
             jCheck(isa, element.jsonata)
-            .catch(e =>{
-              bootAlert(e.message +". \n Validation failed and automatic patch is not successful. \n ", "danger");
-              return Promise.reject()
-            } 
-)
-            .then(e => 
-            {
-              passed += 1;
-              bootAlert(element.description +". \n Validation failed but automatic patching has been successfully done", "warning");
-              
-              if (passed == checklist.length){
-                document.getElementById("toSubmit").classList.remove("d-none");
-                console.log("all test passed");
-              }else{
-                document.getElementById("toSubmit").classList.add("d-none");
+              .catch(e => {
+                bootAlert(e.message + ". \n Validation failed and automatic patch is not successful. \n ", "danger");
+                return Promise.reject()
               }
-            }
-              
-            );
+              )
+              .then(e => {
+                passed += 1;
+                bootAlert(element.description + ". \n Validation failed but automatic patching has been successfully done", "warning");
+
+                if (passed == checklist.length) {
+                  document.getElementById("toSubmit").classList.remove("d-none");
+                  console.log("all test passed");
+                } else {
+                  document.getElementById("toSubmit").classList.add("d-none");
+                }
+              }
+
+              );
 
           } catch (e) {
             bootAlert(e.message, "danger")
@@ -986,7 +1032,7 @@ fetchGoogleCSV();
         }
 
       };
-      
+
       //console.log("returned isa is: " + JSON.stringify(isa));
       return isa;
     }
@@ -1009,7 +1055,7 @@ fetchGoogleCSV();
             childNode.innerText = key;
             childNode.setAttribute("title", value);
             childNode.setAttribute("data-order", order);
-            value=="missing_key"? childNode.classList.add("missingKey") : {} ;
+            value == "missing_key" ? childNode.classList.add("missingKey") : {};
             parentNode.appendChild(childNode);
           } catch (error) {
             alert(e);
@@ -1020,7 +1066,7 @@ fetchGoogleCSV();
 
             //parentNode.classList.add(value);
           };
-          
+
         } else if (typeof (value) == 'object') {
           let childNode = document.createElement("span");
           childNode.classList.add("json");
@@ -1053,13 +1099,14 @@ fetchGoogleCSV();
     };
 
 
-    
-    
+
+
 
 
     async function isaVis(json, instance) {
-      json.studies[0].assays[0].comments = [{"target_repository": "ENA" }];
-      window.isaJSON ={ "isa" : json, "csv":googleJSON };
+      json.studies[0].assays[0].comments = [{ "target_repository": "ENA" }];
+      window.isaJSON = { "isa": json, "csv": googleJSON };
+      await visjs();
       await makeSampleTable(window.isaJSON);
       //document.getElementById("sampleTable").innerHTML = html1;
       window.input_json = await checkall(checklist_biosamples, json, instance);
@@ -1080,7 +1127,7 @@ fetchGoogleCSV();
         stepListText += "<option value=" + i + " label=" + i + " >" + i + "</option>"
       }
       document.getElementById("steplist").innerHTML = stepListText;
-      
+
       jsonRange.value = 3;
       jsonRange.onchange()
     }
@@ -1141,12 +1188,12 @@ fetchGoogleCSV();
             }
           }
         });
-        let tableHTML="";
+        let tableHTML = "";
         const fileList = fs.readdirSync("/");
         fileList.forEach((element, index) => {
-          if (!element.endsWith(".json")){
+          if (!element.endsWith(".json")) {
             const fileName = element.split(".git");
-          tableHTML += `
+            tableHTML += `
                 <tr>
                 <td>
               `+ fileName[0] + `
@@ -1160,9 +1207,9 @@ fetchGoogleCSV();
             </tr>
             `
           }
-          
+
         });
-        document.getElementById("importedARCTable").innerHTML= tableHTML;
+        document.getElementById("importedARCTable").innerHTML = tableHTML;
         if (convert) {
           runARC2JSON(dir)
         }
@@ -1176,35 +1223,35 @@ fetchGoogleCSV();
 
     }
 
-    async function runARC2JSON(dir){
+    async function runARC2JSON(dir) {
       try {
         const ele = document.getElementById("ARCInfo");
-          //ele.innerHTML= "Downloading ARC successful, files are "+ (FS.readdirSync(dir));
-          const dec = new TextDecoder;
-          var jsonText;
-          let fileName = dir + "exported.json";
-          await ARC2JSON(dir, fileName);
-          jsonText = dec.decode(FS.readFileSync(fileName));
+        //ele.innerHTML= "Downloading ARC successful, files are "+ (FS.readdirSync(dir));
+        const dec = new TextDecoder;
+        var jsonText;
+        let fileName = dir + "exported.json";
+        await ARC2JSON(dir, fileName);
+        jsonText = dec.decode(FS.readFileSync(fileName));
 
 
-          ele.innerHTML += jsonText;
-          dlText(jsonText, fileName);
-          dataplant_json = JSON.parse(jsonText);
+        ele.innerHTML += jsonText;
+        dlText(jsonText, fileName);
+        dataplant_json = JSON.parse(jsonText);
 
-          await isaVis(dataplant_json);
-          
-          return document.getElementById("isacheckNavBtn").click()
-        
+        await isaVis(dataplant_json);
+
+        return document.getElementById("isacheckNavBtn").click()
+
       } catch (error) {
         alert(error);
       }
-      
+
     }
 
-    function addTableHeader( datafile, sample, source){
-      return `<h2>File Name: `+ datafile +`</h2><br>
-      <h2>Sample: `+ sample +`</h2><br>
-      <h2>Source: `+ source +`</h2><br>
+    function addTableHeader(datafile, sample, source) {
+      return `<h2>File Name: ` + datafile + `</h2><br>
+      <h2>Sample: `+ sample + `</h2><br>
+      <h2>Source: `+ source + `</h2><br>
       <table class="table">
         <thead>
           <tr>
@@ -1215,86 +1262,86 @@ fetchGoogleCSV();
         </thead>
         <tbody>`
     }
-    function addTableRow(no, v1, v2 ){
-      
+    function addTableRow(no, v1, v2) {
+
       return `<tr>
-            <th>`+no+`</th>
-            <td>`+v1+`</td>
-            <td>`+v2+`</td>
+            <th>`+ no + `</th>
+            <td>`+ v1 + `</td>
+            <td>`+ v2 + `</td>
           </tr>`
     }
-    function addTableRow2(no, v1, v2 ){
+    function addTableRow2(no, v1, v2) {
       return `<tr>
-            <th>`+no+`</th>
-            <td>`+v1+`</td>
-            <td>`+v2+`</td>
+            <th>`+ no + `</th>
+            <td>`+ v1 + `</td>
+            <td>`+ v2 + `</td>
           </tr>`
     }
-    async function PrepareSubmissionJSON(alias, accession, type1, type2){
-        return {
+    async function PrepareSubmissionJSON(alias, accession, type1, type2) {
+      return {
         "alias": alias,
         "accession": accession,
         "actions": [
-            {"type": type1},
-            {"type": type2}
-          ],
+          { "type": type1 },
+          { "type": type2 }
+        ],
       }
     }
 
-    async function PrepareProjectJSON(alias, name, title, description, id){
+    async function PrepareProjectJSON(alias, name, title, description, id) {
       return {
-            "alias": alias,
-            "name": name,
-            "title": title,
-            "description": description,
-            "sequencingProject": {},
-            "attributes": [
-                {
-                    "tag": "testTag",
-                    "value": "testValue"
-                }
-            ],
-            "project_links": [
-                {
-                    "xrefLink": {
-                        "db": "PLANTdataHUB",
-                        "id": id
-                    }
-                }
-            ]
-        }
-    }
-
-    function PrepareSampleJSON(alias, title, taxonId, attributes){
-        return {
-            "alias": alias,
-            "title": title,
-            "organism": {
-                "taxonId": taxonId
-            },
-            "attributes": attributes
-        }
-    }
-
-    function termConvert(term){
-      for (value of googleJSON){
-       
-        if (value["ontName"] == term){
-          console.log("converted "+term+ " to " + value["Field Name"]);
-          return value["Field Name"];
+        "alias": alias,
+        "name": name,
+        "title": title,
+        "description": description,
+        "sequencingProject": {},
+        "attributes": [
+          {
+            "tag": "testTag",
+            "value": "testValue"
+          }
+        ],
+        "project_links": [
+          {
+            "xrefLink": {
+              "db": "PLANTdataHUB",
+              "id": id
+            }
+          }
+        ]
       }
     }
-    return term;
-  }
+
+    function PrepareSampleJSON(alias, title, taxonId, attributes) {
+      return {
+        "alias": alias,
+        "title": title,
+        "organism": {
+          "taxonId": taxonId
+        },
+        "attributes": attributes
+      }
+    }
+
+    function termConvert(term) {
+      for (value of googleJSON) {
+
+        if (value["ontName"] == term) {
+          console.log("converted " + term + " to " + value["Field Name"]);
+          return value["Field Name"];
+        }
+      }
+      return term;
+    }
 
 
-    function prepareSubmissionXML(action){
+    function prepareSubmissionXML(action) {
       // @parameter(action string) ADD,MODIFY,CANCEL, SUPRESS, KILL, HOLD, RELEASE, PROTECT, ROLLBACK, VALIDATE,
       return `<?xml version="1.0" encoding="UTF-8"?>
                 <SUBMISSION>
                   <ACTIONS>
                       <ACTION>
-                        <`+action+`/>
+                        <`+ action + `/>
                       </ACTION>
                   </ACTIONS>
                 </SUBMISSION>`
@@ -1302,192 +1349,192 @@ fetchGoogleCSV();
     }
 
 
-    function getExperimentValue(key, json){
-      for(const attr of json){
-        if (attr.enaName == key ){
-          console.log("key is "+ key+ " attr is "+ attr.value);
+    function getExperimentValue(key, json) {
+      for (const attr of json) {
+        if (attr.enaName == key) {
+          console.log("key is " + key + " attr is " + attr.value);
           try {
             return termConvert(attr.value) || "not provided"
           } catch (error) {
             return "not provided"
-          } 
+          }
         }
       }
     }
 
-    async function prepareExperimentXML( isaJSON){
-        
-      window.JSON4XML = await jCheck( isaJSON, isaMapping["getAllENANoneSource"] ); 
-        const identifier = isaJSON.isa.identifier;
-        let experimentText =`<EXPERIMENT_SET>`;
-        let runText =`<RUN_SET>`;
-       
-        for (submits of window.JSON4XML.experiments)  {
-          //if (submits.) 
-          const alias = submits.name;
-          const lName  = getExperimentValue("Library name", submits.attr);
-          const lStrategy  = getExperimentValue("Library strategy", submits.attr);
-          const lSource  = getExperimentValue("Library source", submits.attr);
-          const lSelection  = getExperimentValue("Library selection", submits.attr);
-          const lLayout  = getExperimentValue("Library layout", submits.attr);
-          const instrument  = getExperimentValue("Instrument model", submits.attr);
-          const checkSum  = getExperimentValue("File checksum", submits.attr);
-          experimentText +=`
-          <EXPERIMENT alias="experiment_`+identifier+alias+`">
-              <TITLE>`+alias+`</TITLE>
-              <STUDY_REF accession="`+window.refs.bioproject.children[alias]+ // SRP017801
-              `"/> 
+    async function prepareExperimentXML(isaJSON) {
+
+      window.JSON4XML = await jCheck(isaJSON, isaMapping["getAllENANoneSource"]);
+      const identifier = isaJSON.isa.identifier;
+      let experimentText = `<EXPERIMENT_SET>`;
+      let runText = `<RUN_SET>`;
+
+      for (submits of window.JSON4XML.experiments) {
+        //if (submits.) 
+        const alias = submits.name;
+        const lName = getExperimentValue("Library name", submits.attr);
+        const lStrategy = getExperimentValue("Library strategy", submits.attr);
+        const lSource = getExperimentValue("Library source", submits.attr);
+        const lSelection = getExperimentValue("Library selection", submits.attr);
+        const lLayout = getExperimentValue("Library layout", submits.attr);
+        const instrument = getExperimentValue("Instrument model", submits.attr);
+        const checkSum = getExperimentValue("File checksum", submits.attr);
+        experimentText += `
+          <EXPERIMENT alias="experiment_`+ identifier + alias + `">
+              <TITLE>`+ alias + `</TITLE>
+              <STUDY_REF accession="`+ window.refs.bioproject.children[alias] + // SRP017801
+          `"/> 
               <DESIGN>
                   <DESIGN_DESCRIPTION/>
-                  <SAMPLE_DESCRIPTOR accession="`+window.refs.biosamples.children[alias]+ //SRS462875
-                  `"/>
+                  <SAMPLE_DESCRIPTOR accession="`+ window.refs.biosamples.children[alias] + //SRS462875
+          `"/>
                   <LIBRARY_DESCRIPTOR>
                       <LIBRARY_NAME/>
-                      <LIBRARY_STRATEGY>`+lStrategy+`</LIBRARY_STRATEGY>
-                      <LIBRARY_SOURCE>`+lSource+`</LIBRARY_SOURCE>
-                      <LIBRARY_SELECTION>`+lSelection+`</LIBRARY_SELECTION>
+                      <LIBRARY_STRATEGY>`+ lStrategy + `</LIBRARY_STRATEGY>
+                      <LIBRARY_SOURCE>`+ lSource + `</LIBRARY_SOURCE>
+                      <LIBRARY_SELECTION>`+ lSelection + `</LIBRARY_SELECTION>
                       <LIBRARY_LAYOUT>
-                          <`+lLayout+`/>
+                          <`+ lLayout + `/>
                       </LIBRARY_LAYOUT>
-                      <LIBRARY_CONSTRUCTION_PROTOCOL>`+lSource+`</LIBRARY_CONSTRUCTION_PROTOCOL>
+                      <LIBRARY_CONSTRUCTION_PROTOCOL>`+ lSource + `</LIBRARY_CONSTRUCTION_PROTOCOL>
                   </LIBRARY_DESCRIPTOR>
               </DESIGN>
               <PLATFORM>
                   <ILLUMINA>
-                      <INSTRUMENT_MODEL>`+instrument+`</INSTRUMENT_MODEL>
+                      <INSTRUMENT_MODEL>`+ instrument + `</INSTRUMENT_MODEL>
                   </ILLUMINA>
               </PLATFORM>
               <EXPERIMENT_ATTRIBUTES>
                   <EXPERIMENT_ATTRIBUTE>
                       <TAG> File checksum </TAG>
-                      <VALUE>`+checkSum+`</VALUE>
+                      <VALUE>`+ checkSum + `</VALUE>
                   </EXPERIMENT_ATTRIBUTE>
               </EXPERIMENT_ATTRIBUTES>
           </EXPERIMENT>
         `;
-        
+
         runText += `
-          <RUN alias="run_`+identifier+alias+`" center_name="">
-              <EXPERIMENT_REF refname="experiment_`+identifier+alias+`"/>
+          <RUN alias="run_`+ identifier + alias + `" center_name="">
+              <EXPERIMENT_REF refname="experiment_`+ identifier + alias + `"/>
               <DATA_BLOCK>
                   <FILES>`
-        
-          const fileType = submits.files.split(".").slice(-1);
-          runText += `<FILE filename="`+submits.files+`" filetype="fastq"
-                          checksum_method="MD5" checksum="`+checkSum+`"/>`
-                  
-        runText +=`</FILES>
+
+        const fileType = submits.files.split(".").slice(-1);
+        runText += `<FILE filename="` + submits.files + `" filetype="fastq"
+                          checksum_method="MD5" checksum="`+ checkSum + `"/>`
+
+        runText += `</FILES>
               </DATA_BLOCK>
           </RUN>
       `
 
-        };
-        experimentText += `</EXPERIMENT_SET>`;
-        runText += `</RUN_SET>`;
-        return [experimentText, runText];
+      };
+      experimentText += `</EXPERIMENT_SET>`;
+      runText += `</RUN_SET>`;
+      return [experimentText, runText];
     }
 
-    async function prepareAnalysisXML(){
-      let anaText =`<ANALYSIS_SET>`;
-        for (ana of window.JSON4XML.analysis)  {
-          const checksum = getExperimentValue("File checksum",JSON4XML.analysis[0].attr );
-          const alias = ana.name;
-          anaText += `
-            <ANALYSIS alias="`+alias+`">
-            <TITLE>`+alias+`</TITLE>
-            <DESCRIPTION>`+alias+`</DESCRIPTION>
-            <STUDY_REF accession="`+refs.bioproject.children[alias]+`"/>
-            <SAMPLE_REF accession="`+refs.biosamples.children[alias]+`"/>
-            <RUN_REF accession="`+refs.ENArun.children[alias]+`"/>
+    async function prepareAnalysisXML() {
+      let anaText = `<ANALYSIS_SET>`;
+      for (ana of window.JSON4XML.analysis) {
+        const checksum = getExperimentValue("File checksum", JSON4XML.analysis[0].attr);
+        const alias = ana.name;
+        anaText += `
+            <ANALYSIS alias="`+ alias + `">
+            <TITLE>`+ alias + `</TITLE>
+            <DESCRIPTION>`+ alias + `</DESCRIPTION>
+            <STUDY_REF accession="`+ refs.bioproject.children[alias] + `"/>
+            <SAMPLE_REF accession="`+ refs.biosamples.children[alias] + `"/>
+            <RUN_REF accession="`+ refs.ENArun.children[alias] + `"/>
             <ANALYSIS_TYPE>
                 <SEQUENCE_ANNOTATION/>
             </ANALYSIS_TYPE>
             <FILES>
-                <FILE filename="`+ana.files+`" filetype="tab" checksum_method="MD5"
-                    checksum="`+checksum+`"/>
+                <FILE filename="`+ ana.files + `" filetype="tab" checksum_method="MD5"
+                    checksum="`+ checksum + `"/>
             </FILES>
             <ANALYSIS_ATTRIBUTES>`
-            for (att of  ana.attr){
-              anaText += `<ANALYSIS_ATTRIBUTE>
-                            <TAG>`+att.enaName+`</TAG>
-                            <VALUE>`+att.value+`</VALUE>
+        for (att of ana.attr) {
+          anaText += `<ANALYSIS_ATTRIBUTE>
+                            <TAG>`+ att.enaName + `</TAG>
+                            <VALUE>`+ att.value + `</VALUE>
                           </ANALYSIS_ATTRIBUTE>`
-            }
-            anaText += `</ANALYSIS_ATTRIBUTES></ANALYSIS>`
+        }
+        anaText += `</ANALYSIS_ATTRIBUTES></ANALYSIS>`
+      }
+      anaText += `</ANALYSIS_SET>`
+      return anaText;
     }
-    anaText +=  `</ANALYSIS_SET>`
-    return anaText;
-  }
-    
 
-    async function makeSampleTable(newJson){
+
+    async function makeSampleTable(newJson) {
       //console.log("input isa json");
       //console.log(json);
       const chain = await jCheck(newJson, isaMapping.getChain);
       window.refs.chain = chain.allchain;
       window.refs.children = chain.children;
-      window.refs.bioproject.refs["PLANTdataHub_"+isaJSON.isa.identifier]="not submitted";
+      window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = "not submitted";
 
-      let sampleJSON=[];
-      
+      let sampleJSON = [];
+
       JSONataExport = await jCheck(newJson, isaMapping.getAllSources);
       //let html="";
-      let sourceList =[];
-      JSONataExport.forEach((v,i,a) => {
+      let sourceList = [];
+      JSONataExport.forEach((v, i, a) => {
         //let tableHTML="";
         let attributes = [];
         let taxonId = "not provided";
         // tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
-      
+
         //console.log(v[2]);
         v[2]["source"][0].characteristics.forEach(
-          (v2,i2,a2) => {
-            const value= v2["@id"].split("#MaterialAttributeValue/")[1];
+          (v2, i2, a2) => {
+            const value = v2["@id"].split("#MaterialAttributeValue/")[1];
             const value2 = value.split("=");
             const tag = termConvert(value2[0]);
             let value3 = value2[1];
-            tag == "tax_id" ? taxonId=value3: {};
-            attributes=attributes.concat({
-                    "tag": tag,
-                    "value": value3
-                })
+            tag == "tax_id" ? taxonId = value3 : {};
+            attributes = attributes.concat({
+              "tag": tag,
+              "value": value3
+            })
             // tableHTML += addTableRow(i2+1, tag, value3)
           }
         );
         //console.log(v[2]["source"][1]);
         v[2]["source"][1].parameterValues.forEach(
-          (v3,i3,a3) => {
+          (v3, i3, a3) => {
             const tag = termConvert(v3.category.parameterName.annotationValue);
-            attributes=attributes.concat({
-                    "tag": tag,
-                    "value": v3.value.annotationValue
-                });
+            attributes = attributes.concat({
+              "tag": tag,
+              "value": v3.value.annotationValue
+            });
             // tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
           }
         )
         const alias = v[2]["source"][0]["@id"];
         const title = v[2]["source"][0]["name"];
         //console.log(attributes);
-      
-        
-      // tableHTML += `</tbody></table>`;
-      // html +=tableHTML
-      if( !(sourceList.includes(alias))){
-      let singleSample = PrepareSampleJSON(alias, title, taxonId, attributes);
-      sampleJSON=sampleJSON.concat(singleSample) ;
-      sourceList = sourceList.concat(alias);
-        //console.log("sourceList is: " + sourceList)
+
+
+        // tableHTML += `</tbody></table>`;
+        // html +=tableHTML
+        if (!(sourceList.includes(alias))) {
+          let singleSample = PrepareSampleJSON(alias, title, taxonId, attributes);
+          sampleJSON = sampleJSON.concat(singleSample);
+          sourceList = sourceList.concat(alias);
+          //console.log("sourceList is: " + sourceList)
+        }
+
       }
-      
-    }
-      )   
-       const alias = newJson.isa.identifier;
-       const name = newJson.isa.identifier ;
-       const title = newJson.isa.identifier ;
-       const description = newJson.isa.description;
-       const id = newJson.isa.identifier ;
+      )
+      const alias = newJson.isa.identifier;
+      const name = newJson.isa.identifier;
+      const title = newJson.isa.identifier;
+      const description = newJson.isa.description;
+      const id = newJson.isa.identifier;
       const submitJSON = await PrepareSubmissionJSON(alias, "", "ADD", "ADD");
-      const projectJSON = await PrepareProjectJSON(alias, name, title, description, id) ;
+      const projectJSON = await PrepareProjectJSON(alias, name, title, description, id);
       ENAJSON = [submitJSON, projectJSON, sampleJSON];
       console.log(ENAJSON);
       // return html;
@@ -1502,7 +1549,47 @@ fetchGoogleCSV();
       dl.click();
       dl.remove();
     }
+    const visjs = async function () {
+      var json2 = await jCheck(isaJSON, isaMapping.getVisjs);
+      // create an array with nodes
+      var nodes = new vis.DataSet(json2.nodes);
 
+      // create an array with edges
+      var edges = new vis.DataSet(json2.edges);
+
+      // create a network
+      var container = document.getElementById("mynetwork");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+      var options = {
+        layout: {
+          hierarchical: {
+            direction: 'LR',
+            sortMethod: 'directed',
+            levelSeparation: 350,
+            nodeSpacing:300,
+            treeSpacing:50,
+          },
+        },
+        nodes: {
+          shape: "box",
+        }, physics: {
+          enabled: false
+        },
+        edges: {
+          arrows: {
+            to: {
+              enabled: true,
+            }
+          }
+        }
+      };
+      var network = new vis.Network(container, data, options);
+
+
+    }
 
     var tour = new Tour(steps); // initialize the guided tour
     //tour.show();
@@ -1566,7 +1653,7 @@ fetchGoogleCSV();
     const input1 = document.getElementById("import");
     input1.addEventListener("change", handleFiles1, false);
 
-    
+
 
     function handleFiles1() {
 
@@ -1583,150 +1670,150 @@ fetchGoogleCSV();
         window.alert("no file is selected to import");
       };
     }
-    
-    function  json2ref( text){
-        const json1 = JSON.parse(text);
-        try {
-          if ( ((json1.actions.includes("ADD")) || ( json1.actions.includes("MODIFY")) ) && (json1.success == true) ){
-            for (sample of json1.samples){
-              window.refs.bioproject.refs[sample.alias] = json1.projects[0].accession;
-              window.refs.biosamples.refs[sample.alias]={};
-              window.refs.biosamples.refs[sample.alias]["accession"] = sample.accession;
-              window.refs.biosamples.refs[sample.alias]["externalAccession"] = sample.externalAccession;
-              for (chain of window.refs.chain){
-                if (chain.includes(sample.alias)){
-                  chain.forEach((ele)=> { window.refs.biosamples.children[ele] = sample.accession; window.refs.bioproject.children[ele] = json1.projects[0].accession })
-                }
+
+    function json2ref(text) {
+      const json1 = JSON.parse(text);
+      try {
+        if (((json1.actions.includes("ADD")) || (json1.actions.includes("MODIFY"))) && (json1.success == true)) {
+          for (sample of json1.samples) {
+            window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = json1.projects[0].accession;
+            window.refs.biosamples.refs[sample.alias] = {};
+            window.refs.biosamples.refs[sample.alias]["accession"] = sample.accession;
+            window.refs.biosamples.refs[sample.alias]["externalAccession"] = sample.externalAccession;
+            for (chain of window.refs.chain) {
+              if (chain.includes(sample.alias)) {
+                chain.forEach((ele) => { window.refs.biosamples.children[ele] = sample.accession; window.refs.bioproject.children[ele] = json1.projects[0].accession })
               }
             }
           }
-        } catch (error) {
-          console.error(error)
         }
+      } catch (error) {
+        console.error(error)
+      }
     }
 
-    function  experimentXML2ref( text){
-        const parser = new DOMParser();
-        const receiptEle = parser.parseFromString(text, "text/xml");
-        const success = receiptEle.querySelector("RECEIPT").getAttribute("success");
-        const action = receiptEle.querySelector("ACTIONS").innerHTML;
-        const experiments =  receiptEle.querySelectorAll("EXPERIMENT");
-        const runs =  receiptEle.querySelectorAll("RUN");
-        const prefix = isaJSON.isa.identifier;
+    function experimentXML2ref(text) {
+      const parser = new DOMParser();
+      const receiptEle = parser.parseFromString(text, "text/xml");
+      const success = receiptEle.querySelector("RECEIPT").getAttribute("success");
+      const action = receiptEle.querySelector("ACTIONS").innerHTML;
+      const experiments = receiptEle.querySelectorAll("EXPERIMENT");
+      const runs = receiptEle.querySelectorAll("RUN");
+      const prefix = isaJSON.isa.identifier;
 
-        try {
-          if ( ((action =="ADD") || ( action =="MODIFY"))&& (success == "true")  ){
-            for (exp of experiments){
-              const alias = exp.getAttribute("alias").replace("experiment_"+prefix, "")
-              window.refs.ENAexperiment.refs[alias] = exp.getAttribute("accession");
-              for (chain of window.refs.chain){
-                if (chain.includes(alias)){
-                  chain.forEach((ele)=> { window.refs.ENAexperiment.children[ele] = exp.getAttribute("accession") })
-                }
+      try {
+        if (((action == "ADD") || (action == "MODIFY")) && (success == "true")) {
+          for (exp of experiments) {
+            const alias = exp.getAttribute("alias").replace("experiment_" + prefix, "")
+            window.refs.ENAexperiment.refs[alias] = exp.getAttribute("accession");
+            for (chain of window.refs.chain) {
+              if (chain.includes(alias)) {
+                chain.forEach((ele) => { window.refs.ENAexperiment.children[ele] = exp.getAttribute("accession") })
               }
-            };
-            for (exp of runs){
-              const alias = exp.getAttribute("alias").replace("run_"+prefix, "")
-              window.refs.ENArun.refs[alias] = exp.getAttribute("accession");
-              for (chain of window.refs.chain){
-                if (chain.includes(alias)){
-                  chain.forEach((ele)=> { window.refs.ENArun.children[ele] = exp.getAttribute("accession") })
-                }
+            }
+          };
+          for (exp of runs) {
+            const alias = exp.getAttribute("alias").replace("run_" + prefix, "")
+            window.refs.ENArun.refs[alias] = exp.getAttribute("accession");
+            for (chain of window.refs.chain) {
+              if (chain.includes(alias)) {
+                chain.forEach((ele) => { window.refs.ENArun.children[ele] = exp.getAttribute("accession") })
               }
             }
           }
-        } catch (error) {
-          console.error(error)
         }
+      } catch (error) {
+        console.error(error)
+      }
     }
 
-    async function JSONSubmit(submitJSON, projectJSON, sampleJSON){
+    async function JSONSubmit(submitJSON, projectJSON, sampleJSON) {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      const token = btoa(username+":"+password);
-      console.log("token is : "+ token);
+      const token = btoa(username + ":" + password);
+      console.log("token is : " + token);
       // Construct the request body
       var requestBody = {
-      "submission": submitJSON,
-      "projects": [projectJSON],
-      "samples": sampleJSON,
-        };
-        console.log(requestBody);
-        // Send the POST request using Fetch API
-        const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic '+token,
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify(requestBody)
-        })
-        const text = await response.text();
-        window.returnMessage["biosamples"] = text;
-        json2ref(text); 
-        return text;
+        "submission": submitJSON,
+        "projects": [projectJSON],
+        "samples": sampleJSON,
+      };
+      console.log(requestBody);
+      // Send the POST request using Fetch API
+      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + token,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      })
+      const text = await response.text();
+      window.returnMessage["biosamples"] = text;
+      json2ref(text);
+      return text;
     }
 
-    async function anaXMLSubmit(submitXML, anaXML){
+    async function anaXMLSubmit(submitXML, anaXML) {
 
       var data = new FormData();
-      data.append("SUBMISSION", new  Blob([submitXML]), "@submission.xml" );
-      data.append("ANALYSIS", new  Blob([anaXML]), "@analysis.xml" );
+      data.append("SUBMISSION", new Blob([submitXML]), "@submission.xml");
+      data.append("ANALYSIS", new Blob([anaXML]), "@analysis.xml");
 
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      const token = btoa(username+":"+password);
-      console.log("token is : "+ token);
+      const token = btoa(username + ":" + password);
+      console.log("token is : " + token);
       // Construct the request body
-        //console.log(requestBody);
-        // Send the POST request using Fetch API
-        const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Basic '+token,
-            'Accept': 'application/json',
-          },
-          body: data
-        })
-        const text = await response.text();
-        
-        return text;
-      }
+      //console.log(requestBody);
+      // Send the POST request using Fetch API
+      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + token,
+          'Accept': 'application/json',
+        },
+        body: data
+      })
+      const text = await response.text();
+
+      return text;
+    }
 
 
 
-    async function XMLSubmit(submitXML, xml){
+    async function XMLSubmit(submitXML, xml) {
       let experimentXML = xml[0];
-      let runXML =xml[1];
+      let runXML = xml[1];
       var data = new FormData();
-      data.append("SUBMISSION", new  Blob([submitXML]), "@submission.xml" );
-      data.append("EXPERIMENT", new  Blob([experimentXML]), "@experiment.xml" );
-      data.append("RUN",        new  Blob([runXML]), "@run.xml" );
+      data.append("SUBMISSION", new Blob([submitXML]), "@submission.xml");
+      data.append("EXPERIMENT", new Blob([experimentXML]), "@experiment.xml");
+      data.append("RUN", new Blob([runXML]), "@run.xml");
 
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      const token = btoa(username+":"+password);
-      console.log("token is : "+ token);
+      const token = btoa(username + ":" + password);
+      console.log("token is : " + token);
       // Construct the request body
-        //console.log(requestBody);
-        // Send the POST request using Fetch API
-        const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Basic '+token,
-            'Accept': 'application/json',
-          },
-          body: data
-        })
-        const text = await response.text();
-        experimentXML2ref( text);
-        returnMessage["experiment"] = text;
-        return text;
+      //console.log(requestBody);
+      // Send the POST request using Fetch API
+      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + token,
+          'Accept': 'application/json',
+        },
+        body: data
+      })
+      const text = await response.text();
+      experimentXML2ref(text);
+      returnMessage["experiment"] = text;
+      return text;
     }
 
 
-    function bstest(testJSON,  instance) {
+    function bstest(testJSON, instance) {
       loading.show();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
@@ -1760,7 +1847,7 @@ fetchGoogleCSV();
           console.error('Error:', error);
           // Handle errors here
         });
-      
+
     }
 
     window.addEventListener("load", (event) => {
@@ -2071,22 +2158,22 @@ fetchGoogleCSV();
     //   }
     //   return assayProcessSequence;
     // }
-    
+
     addEventListener("hashchange", (event) => {
 
       if (true) {
         softRoute();
       }
 
-      });
+    });
 
-      function copyById(id){
-        var copyText = document.getElementById(id).innerText;   
-        navigator.clipboard.writeText(copyText)
-       .catch(e=> alert(e) )
-       .then(e => alert("copy successful"));
-      }
-      
+    function copyById(id) {
+      var copyText = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(copyText)
+        .catch(e => alert(e))
+        .then(e => alert("copy successful"));
+    }
+
     //  const submitAll = async function(id, json, instance) {
     //   if (json)
     //   //window.input_json =await  checkall(checklist_biosamples, json);
@@ -2097,30 +2184,33 @@ fetchGoogleCSV();
     //     case "ena":
     //       enatest(enaModify(json));
     //       break;
-        
+
     //   }
     //   }
-      const newSubmit = async function(id) {
+    const newSubmit = async function (id) {
       if (ENAJSON)
-      //window.input_json =await  checkall(checklist_biosamples, json);
-      switch (id){
-        case "biosamples":
-        const text = await JSONSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2]) ;
-        document.getElementById("subStatus").innerText = text;
-          break;
-        case "ena":
-        var xml1 =  await prepareExperimentXML( window.isaJSON);
-        var xml2 = prepareSubmissionXML("ADD");
-        const text2 = await XMLSubmit(xml2, xml1); 
-          document.getElementById("subStatus").innerText = text2;
-          case "ena-analysis":
-        var xml1 =  await prepareAnalysisXML();
-        var xml2 = prepareSubmissionXML("ADD");
-        const text3 = await anaXMLSubmit(xml2, xml1); 
-          document.getElementById("subStatus").innerText = text3;
-          break;        
+        //window.input_json =await  checkall(checklist_biosamples, json);
+        switch (id) {
+          case "biosamples":
+            loading.show();
+            const text = await JSONSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2]);
+            document.getElementById("subStatus").innerText = text;
+            loading.hide();
+            break;
+          case "enaExp":
+            var xml1 = await prepareExperimentXML(window.isaJSON);
+            var xml2 = prepareSubmissionXML("ADD");
+            const text2 = await XMLSubmit(xml2, xml1);
+            document.getElementById("subStatus").innerText = text2;
+            break;
+          case "enaAna":
+            var xml1 = await prepareAnalysisXML();
+            var xml2 = prepareSubmissionXML("ADD");
+            const text3 = await anaXMLSubmit(xml2, xml1);
+            document.getElementById("subStatus").innerText = text3;
+            break;
         }
-      }
+    }
   </script>
 
   <!-- Button trigger modal -->
@@ -2140,54 +2230,54 @@ fetchGoogleCSV();
           <div class="container">
 
             <div class="form-check" id="submitRepos">
-              
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="1" id="biosamples" name="repo" checked>
-                      <label class="form-check-label" for="biosamples">
-                        BioSamples
 
-                      </label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="1" id="biosamples" name="repo" checked>
+                <label class="form-check-label" for="biosamples">
+                  BioSamples
 
-
-                    </div>
-                    <div class="spinner-border text-primary d-none" id="biosamplesloading" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
-
-
-
-
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="ena" name="repo">
-                      <label class="form-check-label" for="ENA">
-                        ENA
-                      </label>
-                    </div>
-
-
-                    <div class="spinner-border text-primary d-none" id="ENAloading" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
-
-
-
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="metabolights" name="repo">
-                      <label class="form-check-label" for="metabolights">
-                        Metabolights
-                      </label>
-                    </div>
-
-
-                    <div class="spinner-border text-primary d-none" id="metabolightsloading" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
+                </label>
 
 
               </div>
+              <div class="spinner-border text-primary d-none" id="biosamplesloading" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
 
 
-            
+
+
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="ena" name="repo">
+                <label class="form-check-label" for="ENA">
+                  ENA
+                </label>
+              </div>
+
+
+              <div class="spinner-border text-primary d-none" id="ENAloading" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+
+
+
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="metabolights" name="repo">
+                <label class="form-check-label" for="metabolights">
+                  Metabolights
+                </label>
+              </div>
+
+
+              <div class="spinner-border text-primary d-none" id="metabolightsloading" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+
+
+            </div>
+
+
+
           </div>
           <table id="validate_table" class="table table-bordered table-hover">
 
@@ -2235,18 +2325,25 @@ fetchGoogleCSV();
             <tbody>
               <tr>
                 <th scope="row">Token</th>
-                <td  id="tokenStatus">not asked</td>
+                <td id="tokenStatus">not asked</td>
                 <td>
-                  <div class="scrollTable" id="tokenText" ></div>
+                  <div class="scrollTable" id="tokenText"></div>
                 </td>
-                <td><button class="btn btn-primary"  disabled>Copy Token</button><button class="btn btn-primary"disabled>Download Token</button></td>
+                <td><button class="btn btn-primary" disabled>Copy Token</button><button class="btn btn-primary"
+                    disabled>Download Token</button></td>
               </tr>
               <tr>
                 <th scope="row">BioSamples</th>
                 <td id="biosamplesStatus">not asked</td>
-                <td  ><div class="scrollTable" id="biosamplesText"> </div> </td>
-                <td><button class="btn btn-primary" id="copyreturnedjson" onclick="copyById('biosamplesText')" >Copy Returned JSON</button>
-                  <button class="btn btn-primary" id="downloadreturnedjson" onclick="dlText(document.getElementById('biosamplesText').innerText, 'biosamples_returned_'+window.current_file+'.json' )" >Download Returned JSON</button></td>
+                <td>
+                  <div class="scrollTable" id="biosamplesText"> </div>
+                </td>
+                <td><button class="btn btn-primary" id="copyreturnedjson" onclick="copyById('biosamplesText')">Copy
+                    Returned JSON</button>
+                  <button class="btn btn-primary" id="downloadreturnedjson"
+                    onclick="dlText(document.getElementById('biosamplesText').innerText, 'biosamples_returned_'+window.current_file+'.json' )">Download
+                    Returned JSON</button>
+                </td>
               </tr>
               <tr>
                 <th scope="row">ENA</th>

@@ -1,4 +1,8 @@
-
+#mynetwork {
+    width: 1920px;
+    height: 300px;
+    border: 1px solid lightgray;
+  }
 
 :root{
   scrollbar-color:  #1FC2A7  #d1d1d1 !important;
