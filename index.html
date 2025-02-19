@@ -384,15 +384,16 @@
             id="cModalButton"> Start Submissions </button>
         </div>
       </div>
+      <div id="sampleTable" class="row justify-content-center m-3">
+       ISA-JSON table
+
+
+      </div>
       <div id="mynetwork"></div>
       <div id="subStatus" class="row justify-content-center m-3">
 
       </div>
-      <div id="sampleTable" class="row justify-content-center m-3">
-        Table
-
-
-      </div>
+     
     </div>
 
     <div name="tab" class=" col-12 d-none" id="ARC2JSONTab">
@@ -855,7 +856,47 @@
             {"from": $lookup($dict1,$v2[0] ) , "to": $lookup($dict1,$v2[1] )    }
           } );
           {"nodes": $nodes, "edges": $edge}
-          )`
+          )`,
+    "getAllTable":`(
+            $js1:= { "investigation": $.isa.identifier,
+                      "studies": $.isa.studies.{
+                          "id":\`@id\`, "process": [$zip(materials.[sources.\`@id\`], materials.[samples.\`@id\`])]},
+                      "assays" : $.isa.studies.assays.{
+                          "id":\`@id\`, "process": processSequence.[inputs.\`@id\`, outputs.\`@id\`]  }    
+                      } ;  
+                  $sources :=  $.isa.studies.materials.sources.\`@id\`;
+                  $js2:= $js1.**.process;
+                  $nodes1 := $distinct($js2.*);
+        $processObj:= $.isa.**.processSequence.inputs.{
+                  \`@id\`: %.parameterValues.([{ "keyId":category.\`@id\`,
+                      "keyName":category.parameterName.annotationValue, "valueId":value.\`@id\`, "valueName": value.annotationValue }]) };
+        $sources := [
+            $.isa.studies.materials.sources.{ 
+            "id": \`@id\`,
+              "level":"studies", 
+              "name":name, 
+              "submission":comments.submission, 
+              "target_repository":"BioSamples",
+              "characteristics":characteristics.
+              ([{ "key" : ($substringAfter(
+                  \`@id\`, "#MaterialAttributeValue/")~>$split("="))[0], 
+                  "value":($substringAfter( \`@id\`, "#MaterialAttributeValue/")~>
+                  $split("="))[1]}]), 
+              "parameters":  $processObj ~> $lookup(\`@id\`)  
+              }];
+        $processes :=[
+              $.isa.studies.assays.processSequence.{ 
+              "id": \`@id\`,
+              "level":"assays", 
+              "name":name, 
+              "submission":comments.submission, 
+              "target_repository":%.comments.target_repository ?%.comments.target_repository  : "not provided",
+              "inputs": inputs.\`@id\`,
+              "outputs": outputs.\`@id\`,
+              "parameters":  $processObj ~> $lookup(outputs.\`@id\`)  
+            }];
+        {"sources" : $sources, "processes": $processes}
+              )`
 
     }
 
@@ -1098,18 +1139,23 @@
       });
     };
 
-
+   
 
 
 
 
     async function isaVis(json, instance) {
-      json.studies[0].assays[0].comments = [{ "target_repository": "ENA" }];
+      document.getElementById("submitNavBtn").click();
       window.isaJSON = { "isa": json, "csv": googleJSON };
       await visjs();
-      await makeSampleTable(window.isaJSON);
-      //document.getElementById("sampleTable").innerHTML = html1;
+
+      //json.studies[0].assays[0].comments = [{ "target_repository": "ENA" }];
+      
+      
+      const html1 = await makeAllTable(window.isaJSON);
+      document.getElementById("sampleTable").innerHTML = html1;
       window.input_json = await checkall(checklist_biosamples, json, instance);
+
       window.orderMax = 0;
       window.path = 0;
       let ele1 = document.getElementById("jsonVisualize");
@@ -1130,6 +1176,8 @@
 
       jsonRange.value = 3;
       jsonRange.onchange()
+      loading.hide()
+      
     }
 
 
@@ -1248,33 +1296,40 @@
 
     }
 
-    function addTableHeader(datafile, sample, source) {
-      return `<h2>File Name: ` + datafile + `</h2><br>
-      <h2>Sample: `+ sample + `</h2><br>
-      <h2>Source: `+ source + `</h2><br>
+    function addTableHeader(tableType, ) {
+      return `
+      <h2>Table Type: `+ tableType + `</h2><br>
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Source Name</th>
-            <th scope="col">Source Attributes</th>
-            <th scope="col">Source Attributes Value</th>
+            <th scope="col">Number</th>
+            <th scope="col">ID</th>
+            <th scope="col">Level</th>
+            <th scope="col">Inputs</th>
+            <th scope="col">Outputs</th>
+
+            <th scope="col">Target Repo</th>
           </tr>
         </thead>
         <tbody>`
     }
-    function addTableRow(no, v1, v2) {
+    function addTableRow(no, v1, v2, v3, v4, v5 ) {
 
       return `<tr>
             <th>`+ no + `</th>
             <td>`+ v1 + `</td>
             <td>`+ v2 + `</td>
+            <td>`+ v3 + `</td>
+            <td>`+ v4 + `</td>
+            <td>`+ v5 + `</td>
           </tr>`
     }
-    function addTableRow2(no, v1, v2) {
+    function addTableRow2(no, v1, v2, v3) {
       return `<tr>
             <th>`+ no + `</th>
             <td>`+ v1 + `</td>
             <td>`+ v2 + `</td>
+             <td>`+ v3 + `</td>
           </tr>`
     }
     async function PrepareSubmissionJSON(alias, accession, type1, type2) {
@@ -1356,6 +1411,7 @@
           try {
             return termConvert(attr.value) || "not provided"
           } catch (error) {
+            console.error(error);
             return "not provided"
           }
         }
@@ -1467,7 +1523,7 @@
     }
 
 
-    async function makeSampleTable(newJson) {
+    async function makeAllTable(newJson) {
       //console.log("input isa json");
       //console.log(json);
       const chain = await jCheck(newJson, isaMapping.getChain);
@@ -1477,55 +1533,74 @@
 
       let sampleJSON = [];
 
-      JSONataExport = await jCheck(newJson, isaMapping.getAllSources);
-      //let html="";
+      JSONataExport = await jCheck(newJson, isaMapping.getAllTable);
+      let html="";
       let sourceList = [];
-      JSONataExport.forEach((v, i, a) => {
-        //let tableHTML="";
+      let tableHTML= "";
+        tableHTML += addTableHeader("Processes");
+      JSONataExport.sources.forEach((v, i, a) => {
+        
+        tableHTML += addTableRow(i, v.id,v.level, v.name, v.outputs, v.target_repository)
+
+       
+      })
+      JSONataExport.processes.forEach((v, i, a) => {
+        
+       
+        tableHTML += addTableRow(i, v.id, v.level, v.inputs, v.outputs,v.target_repository)
+       
+        
+      })
+      tableHTML += `</tbody> </table>`;
+      html +=tableHTML
+       return html;
+    }
+
+
+    async function makeSampleJSON(newJson) {
+      //console.log("input isa json");
+      //console.log(json);
+      
+
+      let sampleJSON = [];
+
+      JSONataExport = await jCheck(newJson, isaMapping.getAllTable);
+     
+      let sourceList = [];
+      JSONataExport.sources.forEach((v, i, a) => {
+        
         let attributes = [];
         let taxonId = "not provided";
-        // tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
-
-        //console.log(v[2]);
-        v[2]["source"][0].characteristics.forEach(
+        v.characteristics.forEach(
           (v2, i2, a2) => {
-            const value = v2["@id"].split("#MaterialAttributeValue/")[1];
-            const value2 = value.split("=");
-            const tag = termConvert(value2[0]);
-            let value3 = value2[1];
-            tag == "tax_id" ? taxonId = value3 : {};
+            
+            const tag = termConvert(v2.key);
+            let value = v2.value;
+            tag == "tax_id" ? taxonId = value : {};
             attributes = attributes.concat({
               "tag": tag,
-              "value": value3
+              "value": value
             })
-            // tableHTML += addTableRow(i2+1, tag, value3)
+             tableHTML += addTableRow(i2+1, tag, value3)
           }
         );
-        //console.log(v[2]["source"][1]);
-        v[2]["source"][1].parameterValues.forEach(
+        
+        v.parameters.forEach(
           (v3, i3, a3) => {
-            const tag = termConvert(v3.category.parameterName.annotationValue);
+            const tag = termConvert(v3.keyName);
             attributes = attributes.concat({
               "tag": tag,
-              "value": v3.value.annotationValue
+              "value": v3.valueName
             });
-            // tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
+           
           }
         )
-        const alias = v[2]["source"][0]["@id"];
-        const title = v[2]["source"][0]["name"];
-        //console.log(attributes);
+        const alias = v.id;
+        const title = v.name;
 
-
-        // tableHTML += `</tbody></table>`;
-        // html +=tableHTML
-        if (!(sourceList.includes(alias))) {
           let singleSample = PrepareSampleJSON(alias, title, taxonId, attributes);
           sampleJSON = sampleJSON.concat(singleSample);
           sourceList = sourceList.concat(alias);
-          //console.log("sourceList is: " + sourceList)
-        }
-
       }
       )
       const alias = newJson.isa.identifier;
@@ -1537,9 +1612,83 @@
       const projectJSON = await PrepareProjectJSON(alias, name, title, description, id);
       ENAJSON = [submitJSON, projectJSON, sampleJSON];
       console.log(ENAJSON);
-      // return html;
     }
 
+    // async function makeSampleTable(newJson) {
+    //   //console.log("input isa json");
+    //   //console.log(json);
+    //   const chain = await jCheck(newJson, isaMapping.getChain);
+    //   window.refs.chain = chain.allchain;
+    //   window.refs.children = chain.children;
+    //   window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = "not submitted";
+
+    //   let sampleJSON = [];
+
+    //   JSONataExport = await jCheck(newJson, isaMapping.getAllSources);
+    //   let html="";
+    //   let sourceList = [];
+    //   JSONataExport.forEach((v, i, a) => {
+    //     let tableHTML= "";
+    //     let attributes = [];
+    //     let taxonId = "not provided";
+    //     // tableHTML += addTableHeader(v[0][0], v[0][1], v[2]["source"][0]["@id"]);
+
+    //     //console.log(v[2]);
+    //     v[2]["source"][0].characteristics.forEach(
+    //       (v2, i2, a2) => {
+    //         const value = v2["@id"].split("#MaterialAttributeValue/")[1];
+    //         const value2 = value.split("=");
+    //         const tag = termConvert(value2[0]);
+    //         let value3 = value2[1];
+    //         tag == "tax_id" ? taxonId = value3 : {};
+    //         attributes = attributes.concat({
+    //           "tag": tag,
+    //           "value": value3
+    //         })
+    //         // tableHTML += addTableRow(i2+1, tag, value3)
+    //       }
+    //     );
+    //     //console.log(v[2]["source"][1]);
+    //     v[2]["source"][1].parameterValues.forEach(
+    //       (v3, i3, a3) => {
+    //         const tag = termConvert(v3.category.parameterName.annotationValue);
+    //         attributes = attributes.concat({
+    //           "tag": tag,
+    //           "value": v3.value.annotationValue
+    //         });
+    //         // tableHTML += addTableRow2(i3+1, tag, v3.value.annotationValue)
+    //       }
+    //     )
+    //     const alias = v[2]["source"][0]["@id"];
+    //     const title = v[2]["source"][0]["name"];
+    //     //console.log(attributes);
+
+
+    //     // tableHTML += `</tbody></table>`;
+    //     // html +=tableHTML
+    //     if (!(sourceList.includes(alias))) {
+    //       let singleSample = PrepareSampleJSON(alias, title, taxonId, attributes);
+    //       sampleJSON = sampleJSON.concat(singleSample);
+    //       sourceList = sourceList.concat(alias);
+    //       //console.log("sourceList is: " + sourceList)
+    //     }
+
+    //   }
+    //   )
+    //   const alias = newJson.isa.identifier;
+    //   const name = newJson.isa.identifier;
+    //   const title = newJson.isa.identifier;
+    //   const description = newJson.isa.description;
+    //   const id = newJson.isa.identifier;
+    //   const submitJSON = await PrepareSubmissionJSON(alias, "", "ADD", "ADD");
+    //   const projectJSON = await PrepareProjectJSON(alias, name, title, description, id);
+    //   ENAJSON = [submitJSON, projectJSON, sampleJSON];
+    //   console.log(ENAJSON);
+    //   // return html;
+    // }
+
+
+    
     function dlText(text, Name) {
       var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(text);
       var dl = document.createElement('a');
@@ -1568,8 +1717,8 @@
           hierarchical: {
             direction: 'LR',
             sortMethod: 'hubsize',
-            levelSeparation: 350,
-            nodeSpacing:300,
+            levelSeparation: 150,
+            nodeSpacing:100,
             treeSpacing:50,
           },
         },

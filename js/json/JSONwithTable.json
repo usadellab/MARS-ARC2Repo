@@ -647,7 +647,7 @@
                                     }
                                 ]
                             }
-                        ], "comments"[{"target_repository": "ENA"}]
+                        ], "comments":[{"target_repository": "ENA"}]
                     },
                     {
                         "filename": "assays/Metabolights_Assay1/isa.assay.xlsx",
