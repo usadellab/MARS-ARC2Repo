@@ -775,7 +775,7 @@
               $edgePoints :=  $distinct($chain.**);
               $process := $edgePoints ~> $map( function($v2, $i2, $a2) {
                   { "name":$v2,"attributes": 
-                  $.isa.studies.assays.**.processSequence.inputs[\`@id\` = $v2 ].%} });
+                  $ENAassays.**.processSequence.inputs[\`@id\` = $v2 ].%} });
               $termDict := $.csv{id: \`Field Name\`};
               $valueDict := $.isa.**.value{\`@id\`: annotationValue};
               $processValue := $process.[{
@@ -789,7 +789,7 @@
               {"experiments":[$experiments[attr]],"analysis": [$analysis[attr]] };
           )`,
       "getUnique": `(
-              $ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+              $ENAassays := $.isa.studies.assays;
               $chain:= $ENAassays.dataFiles.\`@id\`
                 ~> $map( function($v1, $i1, $a1){
                     ($searchSource:= function($outputIdList){
@@ -802,7 +802,7 @@
                   );
               $edgePoints :=  $distinct($chain.**);
               )`,
-      "getChain": `($ENAassays := $.isa.studies.assays[comments.target_repository = "ENA"];
+      "getChain": `($ENAassays := $.isa.studies.assays;
               $chain:= $ENAassays.dataFiles.\`@id\`
                 ~> $map( function($v1, $i1, $a1){
                     ($searchSource:= function($outputIdList){
@@ -873,7 +873,8 @@
         $sources := [
             $.isa.studies.materials.sources.{ 
             "id": \`@id\`,
-              "level":"studies", 
+              "level":"studies",
+              "parentName": %.\`@id\`, 
               "name":name, 
               "submission":comments.submission, 
               "target_repository":"BioSamples",
@@ -884,16 +885,19 @@
                   $split("="))[1]}]), 
               "parameters":  $processObj ~> $lookup(\`@id\`)  
               }];
+        $;
         $processes :=[
               $.isa.studies.assays.processSequence.{ 
               "id": \`@id\`,
               "level":"assays", 
+              "parentName": %.\`@id\`,
               "name":name, 
               "submission":comments.submission, 
               "target_repository":%.comments.target_repository ?%.comments.target_repository  : "not provided",
               "inputs": inputs.\`@id\`,
               "outputs": outputs.\`@id\`,
-              "parameters":  $processObj ~> $lookup(outputs.\`@id\`)  
+              "parameters":  parameterValues.([{ "keyId":category.\`@id\`,
+              "keyName":category.parameterName.annotationValue, "valueId":value.\`@id\`, "valueName": value.annotationValue }])   
             }];
         {"sources" : $sources, "processes": $processes}
               )`
@@ -1099,7 +1103,7 @@
             value == "missing_key" ? childNode.classList.add("missingKey") : {};
             parentNode.appendChild(childNode);
           } catch (error) {
-            alert(e);
+            alert(error);
           };
 
           if ((key == '@id') || (key == 'name')) {
@@ -1180,7 +1184,22 @@
       
     }
 
+    function addTarget(assayName, repoName){
+      const assays = isaJSON.isa.studies[0].assays;
+      for (const [index,ele] of assays.entries()){
+        if (ele['@id'] == assayName ){
+          isaJSON.isa.studies[0].assays[index]["comments"] = [];
+          isaJSON.isa.studies[0].assays[index]["comments"].push({"target_repository": repoName  });
+          //console.log(assayName, repoName);
+          document.querySelectorAll('button[name="selectRepo' + assayName+'"]').forEach(
+          (e)=>{
+            e.innerHTML= repoName;
+          }
+          )
+        }
+      }
 
+    }
 
     function updateLabel(phrase) {
       document.getElementById("pbarLabel").innerHTML = phrase;
@@ -1304,7 +1323,7 @@
           <tr>
             <th scope="col">Number</th>
             <th scope="col">ID</th>
-            <th scope="col">Level</th>
+            <th scope="col">Assay Name</th>
             <th scope="col">Inputs</th>
             <th scope="col">Outputs</th>
 
@@ -1314,6 +1333,20 @@
         <tbody>`
     }
     function addTableRow(no, v1, v2, v3, v4, v5 ) {
+
+      if (v5=="not provided"){
+
+        v5 = `
+        <button name="selectRepo`+v2+`" class="btn btn-secondary dropdown-toggle" type="button"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                      Select Repo
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" data-assays="`+v2+`"  onclick="addTarget(this.dataset.assays ,this.innerHTML)" href="#">ENA</a></li>
+                      <li><a class="dropdown-item" data-assays="`+v2+`" onclick="addTarget(this.dataset.assays, this.innerHTML)" href="#">Metabolights</a></li>
+                    </ul>`
+      }
+
 
       return `<tr>
             <th>`+ no + `</th>
@@ -1474,7 +1507,10 @@
               <EXPERIMENT_REF refname="experiment_`+ identifier + alias + `"/>
               <DATA_BLOCK>
                   <FILES>`
-
+        
+        if (typeof submits.files == "object"){
+          submits.files = submits.files[0];
+        }
         const fileType = submits.files.split(".").slice(-1);
         runText += `<FILE filename="` + submits.files + `" filetype="fastq"
                           checksum_method="MD5" checksum="`+ checkSum + `"/>`
@@ -1530,29 +1566,21 @@
       window.refs.chain = chain.allchain;
       window.refs.children = chain.children;
       window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = "not submitted";
-
       let sampleJSON = [];
-
       JSONataExport = await jCheck(newJson, isaMapping.getAllTable);
       let html="";
       let sourceList = [];
       let tableHTML= "";
         tableHTML += addTableHeader("Processes");
-      JSONataExport.sources.forEach((v, i, a) => {
-        
-        tableHTML += addTableRow(i, v.id,v.level, v.name, v.outputs, v.target_repository)
-
-       
+      JSONataExport.sources.forEach((v, i, a) => {        
+        tableHTML += addTableRow(i, v.id,v.parentName, v.name, v.outputs, v.target_repository)       
       })
       JSONataExport.processes.forEach((v, i, a) => {
-        
-       
-        tableHTML += addTableRow(i, v.id, v.level, v.inputs, v.outputs,v.target_repository)
-       
-        
+        tableHTML += addTableRow(i, v.id, v.parentName, v.inputs, v.outputs,v.target_repository)
       })
       tableHTML += `</tbody> </table>`;
-      html +=tableHTML
+      html +=tableHTML;
+      makeSampleJSON(newJson);
        return html;
     }
 
@@ -1581,7 +1609,6 @@
               "tag": tag,
               "value": value
             })
-             tableHTML += addTableRow(i2+1, tag, value3)
           }
         );
         

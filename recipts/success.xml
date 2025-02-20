@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="receipt.xsl"?>
+<RECEIPT receiptDate="2025-02-10T08:35:12.621Z" submissionFile="submission-xrzhou center_1739176512621.xml" success="true">
+<SAMPLE accession="ERS31266558" alias="#Source_source1" status="PRIVATE" holdUntilDate="2025-12-12Z">
+<EXT_ID accession="SAMEA131538772" type="biosample"/>
+</SAMPLE>
+<SAMPLE accession="ERS31266559" alias="#Source_source2" status="PRIVATE" holdUntilDate="2025-12-12Z">
+<EXT_ID accession="SAMEA131538773" type="biosample"/>
+</SAMPLE>
+<PROJECT accession="PRJEB85708" alias="MARS_ENA-Metabolights123" status="PRIVATE" holdUntilDate="2025-12-12Z">
+<EXT_ID accession="ERP169081" type="study"/>
+</PROJECT>
+<SUBMISSION accession="ERA31140121" alias="MARS_ENA-Metabolights123"/>
+<MESSAGES>
+<INFO>All objects in this submission are set to private status (HOLD).</INFO>
+<INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+</MESSAGES>
+<ACTIONS>ADD</ACTIONS>
+<ACTIONS>HOLD</ACTIONS>
+</RECEIPT>
