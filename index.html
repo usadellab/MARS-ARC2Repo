@@ -1154,13 +1154,16 @@
     }
 
 
-    function prepareSubmissionXML(action) {
+    function prepareSubmissionXML(action1, action2) {
       // @parameter(action string) ADD,MODIFY,CANCEL, SUPRESS, KILL, HOLD, RELEASE, PROTECT, ROLLBACK, VALIDATE,
       return `<?xml version="1.0" encoding="UTF-8"?>
                 <SUBMISSION>
                   <ACTIONS>
                       <ACTION>
-                        <`+ action + `/>
+                        <`+ action1 + `/>
+                      </ACTION>
+                      <ACTION>
+                        <`+ action2 + `/>
                       </ACTION>
                   </ACTIONS>
                 </SUBMISSION>`
@@ -1562,7 +1565,7 @@
           }
         }else if(errors[0].innerHTML.includes("already exists")){
           
-          newSubmit("ENAexp", "MODIFY");
+          newSubmit("ENAexp", "MODIFY", "VALIDATE");
 
           }else{
             document.getElementById("ENAexpStatus").innerHTML = "<span class='text-danger'> Failed </span>";
@@ -1605,7 +1608,7 @@
           }
         }else if(errors[0].innerHTML.includes("already exists")){
           
-          newSubmit("ENAana", "MODIFY");
+          newSubmit("ENAana", "MODIFY", "VALIDATE");
 
           }else{
             document.getElementById("ENAanaStatus").innerHTML = "<span class='text-danger'> Failed </span>";
@@ -1816,13 +1819,13 @@
             break;
           case "ENAexp":
             var xml1 = await prepareExperimentXML(window.isaJSON);
-            var xml2 = prepareSubmissionXML(action1);
+            var xml2 = prepareSubmissionXML(action1, action2);
             const text2 = await XMLSubmit(xml2, xml1);
             document.getElementById("ENAexpReturn").innerText = text2;
             break;
           case "ENAana":
             var xml1 = await prepareAnalysisXML();
-            var xml2 = prepareSubmissionXML(action1);
+            var xml2 = prepareSubmissionXML(action1, action2);
             const text3 = await anaXMLSubmit(xml2, xml1);
             document.getElementById("ENAanaReturn").innerText = text3;
             break;
@@ -1888,13 +1891,13 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingBioSamples">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accBS" aria-expanded="true" aria-controls="accBS">
-                      BioSamples: <span id="BSStatus"> </span>
+                      BioSamples:&nbsp;&nbsp;<span id="BSStatus"> </span>
                     </button>
                   </h2>
                   <div id="accBS" class="accordion-collapse collapse show" aria-labelledby="headingBioSamples" data-bs-parent="#submissionAcc">
                     <div class="accordion-body">
                       <span id="BSReturn"> </span>
-                      Manual
+                      
                   <div class="btn-group">
                     <button id="actionBtn1" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       Action1: ADD
@@ -1931,21 +1934,23 @@
                       <li><a class="dropdown-item" onclick="actionBtn(2,this.innerHTML)" href="#">RECEIPT</a></li>
                     </ul>
                   </div>
-                  <button class="btn btn-primary" onclick="newSubmit('biosamples')">Submit</button>     
+                  <br>
+                  <button class="btn btn-primary" onclick="newSubmit('biosamples')">Resubmit</button>     
                     </div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingENAexp">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accENAexp" aria-expanded="false" aria-controls="accENAexp">
-                      ENA Experiment  <span id="ENAexpStatus"> </span>
+                      ENA Experiment: &nbsp;&nbsp;  <span id="ENAexpStatus"> </span>
                       
                   </h2>
                   <div id="accENAexp" class="accordion-collapse collapse" aria-labelledby="headingENAexp" data-bs-parent="#submissionAcc">
                     <div class="accordion-body">
 
                       <span id="ENAexpReturn"> </span>
-<button class="btn btn-primary" onclick="newSubmit('ENAexp')"> Submit</button>
+                      <br>
+                    <button class="btn btn-primary" onclick="newSubmit('ENAexp')"> Reubmit</button>
                     </button>
                     </div>
                   </div>
@@ -1953,13 +1958,14 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingENAana">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accENAana" aria-expanded="false" aria-controls="accENAana">
-                      ENA Analysis<span id="ENAanaStatus"> </span>
+                      ENA Analysis: &nbsp;&nbsp;<span id="ENAanaStatus"> </span>
                     </button>
                   </h2>
                   <div id="accENAana" class="accordion-collapse collapse" aria-labelledby="headingENAana" data-bs-parent="#submissionAcc">
                     <div class="accordion-body">
                       <span id="ENAanaReturn"> </span>
-                      <button class="btn btn-primary" onclick="newSubmit('ENAana')">Submit</button>
+                      <br>
+                      <button class="btn btn-primary" onclick="newSubmit('ENAana')">Reubmit</button>
 
                     </div>
                   </div>
@@ -1988,7 +1994,7 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">download updated JSON</button>
+          <button type="button" class="btn btn-secondary d-none"  data-bs-dismiss="modal">download updated JSON</button>
           
         </div>
       </div>
