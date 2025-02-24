@@ -129,7 +129,10 @@
          
         <span class="input-group-text" > Password</span> <input type="password" class="form-control" id="password">
 
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cModal"
+        <button class="btn btn-primary" onclick="submissionModal()"
+        id="submissionButton"> Start Submissions </button>
+
+          <button class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#cModal"
             id="cModalButton"> Start Submissions </button>
       </div>
       
@@ -570,7 +573,7 @@
               "studies": $.isa.studies.{
                   "id":\`@id\`, "process": [$zip(materials.[sources.\`@id\`], materials.[samples.\`@id\`])]},
               "assays" : $.isa.studies.assays.{
-                  "id":\`@id\`, "process": processSequence.[inputs.\`@id\`, outputs.\`@id\`]  }    
+                  "id":\`@id\`, "process": processSequence.[[$zip(inputs.\`@id\`, outputs.\`@id\`)]][0]  }    
               } ;  
           $sources :=  $.isa.studies.materials.sources.\`@id\`;
           $js2:= $js1.**.process;
@@ -590,27 +593,22 @@
           {"nodes": $nodes, "edges": $edge}
           )`,
     "getAllTable":`(
-            $js1:= { "investigation": $.isa.identifier,
-                      "studies": $.isa.studies.{
-                          "id":\`@id\`, "process": [$zip(materials.[sources.\`@id\`], materials.[samples.\`@id\`])]},
-                      "assays" : $.isa.studies.assays.{
-                          "id":\`@id\`, "process": processSequence.[inputs.\`@id\`, outputs.\`@id\`]  }    
-                      } ;  
-                  $sources :=  $.isa.studies.materials.sources.\`@id\`;
-                  $js2:= $js1.**.process;
-                  $nodes1 := $distinct($js2.*);
-        $processObj:= $.isa.**.processSequence.inputs.{
+        $processObj:= $.isa.studies.processSequence.inputs.{
                   \`@id\`: %.parameterValues.([{ "keyId":category.\`@id\`,
                       "keyName":category.parameterName.annotationValue, "valueId":value.\`@id\`, "valueName": value.annotationValue }]) };
+        $materials := $.isa.studies.materials;
+        $sourceMap:= $zip([$materials.sources.\`@id\`],[$materials.samples.\`@id\`] )~>$map(function($v1, $i1, $ai) {
+            {$v1[0]: $v1[1]} } ) ~> $merge;
         $sources := [
             $.isa.studies.materials.sources.{ 
             "id": \`@id\`,
               "level":"studies",
-              "parentName": %.\`@id\`, 
-              "name":name, 
-              "submission":comments.submission, 
-              "target_repository":"BioSamples",
-              "characteristics":characteristics.
+              "parentName": %.%.\`@id\`, 
+              "name": name, 
+              "output": $sourceMap~>$lookup(\`@id\`),
+              "submission": comments.submission, 
+              "target_repository": "BioSamples",
+              "characteristics": characteristics.
               ([{ "key" : ($substringAfter(
                   \`@id\`, "#MaterialAttributeValue/")~>$split("="))[0], 
                   "value":($substringAfter( \`@id\`, "#MaterialAttributeValue/")~>
@@ -631,8 +629,9 @@
               "parameters":  parameterValues.([{ "keyId":category.\`@id\`,
               "keyName":category.parameterName.annotationValue, "valueId":value.\`@id\`, "valueName": value.annotationValue }])   
             }];
-        {"sources" : $sources, "processes": $processes}
-              )`
+        {"sources" : $sources, "processes": $processes};
+        
+            )`
 
     }
 
@@ -744,6 +743,16 @@
       loading.hide();
     }
 
+
+    const submissionModal =async function(){
+      const repoList = await jCheck(isaJSON, "$.**.target_repository");
+      if(repoList != undefined){
+        document.getElementById("cModalButton").click();
+      }else{
+        alert("'target_repository' can not be found, please chose a repository using the dropdown menu.")
+      }
+    
+    }
 
 
     const bootAlert = (message, type) => {
@@ -972,7 +981,7 @@
           fs,
           http,
           dir,
-          corsProxy: 'https://cors.isomorphic-git.org',
+          corsProxy: 'https://gitcors.cplantbox.com',
           url: url,
           ref: 'main',
           singleBranch: true,
@@ -1053,8 +1062,8 @@
         <thead>
           <tr>
             <th scope="col">Number</th>
-            <th scope="col">ID</th>
-            <th scope="col">Assay Name</th>
+            <th scope="col">Identifier</th>
+            <th scope="col">Studies/Assays</th>
             <th scope="col">Inputs</th>
             <th scope="col">Outputs</th>
 
@@ -1064,7 +1073,7 @@
         <tbody>`
     }
     function addTableRow(no, v1, v2, v3, v4, v5 ) {
-
+        
       if (v5=="not provided"){
 
         v5 = `
@@ -1299,18 +1308,20 @@
       const chain = await jCheck(newJson, isaMapping.getChain);
       window.refs.chain = chain.allchain;
       window.refs.children = chain.children;
-      window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = "not submitted";
+      window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = {"accession": "not submitted"};
       let sampleJSON = [];
       JSONataExport = await jCheck(newJson, isaMapping.getAllTable);
       let html="";
       let sourceList = [];
       let tableHTML= "";
         tableHTML += addTableHeader("Processes");
-      JSONataExport.sources.forEach((v, i, a) => {        
-        tableHTML += addTableRow(i, v.id,v.parentName, v.name, v.outputs, v.target_repository)       
+      JSONataExport.sources.forEach((v, i, a) => {
+        const no = i+1;        
+        tableHTML += addTableRow("Source No. "+no, v.id,v.parentName, v.id, v.output, v.target_repository)       
       })
       JSONataExport.processes.forEach((v, i, a) => {
-        tableHTML += addTableRow(i, v.id, v.parentName, v.inputs, v.outputs,v.target_repository)
+        const no = i+1;  
+        tableHTML += addTableRow("Process No. "+no, v.id, v.parentName, v.inputs, v.outputs,v.target_repository)
       })
       tableHTML += `</tbody> </table>`;
       html +=tableHTML;
@@ -1510,7 +1521,7 @@
         if (((json1.actions.includes("ADD")) || (json1.actions.includes("MODIFY"))) && (json1.success == true)) {
           document.getElementById("BSStatus").innerHTML = "<span class='text-success'> Success </span>"
           for (sample of json1.samples) {
-            window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = json1.projects[0].accession;
+            window.refs.bioproject.refs["PLANTdataHub_" + isaJSON.isa.identifier] = {"accession": json1.projects[0].accession};
             window.refs.biosamples.refs[sample.alias] = {};
             window.refs.biosamples.refs[sample.alias]["accession"] = sample.accession;
             window.refs.biosamples.refs[sample.alias]["externalAccession"] = sample.externalAccession;
@@ -1590,7 +1601,7 @@
           document.getElementById("ENAanaStatus").innerHTML = "<span class='text-success'> Success </span>";
           for (exp of experiments) {
             const alias = exp.getAttribute("alias").replace("experiment_" + prefix, "")
-            window.refs.ENAexperiment.refs[alias] = exp.getAttribute("accession");
+            window.refs.ENAexperiment.refs[alias] = {"accession":exp.getAttribute("accession")};
             for (chain of window.refs.chain) {
               if (chain.includes(alias)) {
                 chain.forEach((ele) => { window.refs.ENAexperiment.children[ele] = exp.getAttribute("accession") })
@@ -1599,10 +1610,10 @@
           };
           for (exp of runs) {
             const alias = exp.getAttribute("alias").replace("run_" + prefix, "")
-            window.refs.ENArun.refs[alias] = exp.getAttribute("accession");
+            window.refs.ENArun.refs[alias] = {"accession":exp.getAttribute("accession")};
             for (chain of window.refs.chain) {
               if (chain.includes(alias)) {
-                chain.forEach((ele) => { window.refs.ENArun.children[ele] = exp.getAttribute("accession") })
+                chain.forEach((ele) => { window.refs.ENArun.children[ele] = exp.getAttribute("accession")} )
               }
             }
           }
