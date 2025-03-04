@@ -1830,15 +1830,17 @@
             loading.hide();
             break;
           case "ENAexp":
-            var xml1 = await prepareExperimentXML(window.isaJSON);
-            var xml2 = prepareSubmissionXML(action1, action2);
-            const text2 = await XMLSubmit(xml2, xml1);
-            document.getElementById("ENAexpReturn").innerText = text2;
+          var xml1 = prepareSubmissionXML(action1, action2);
+            var xml2 = await prepareExperimentXML(window.isaJSON);
+            
+            const text2 = await XMLSubmit(xml1, xml2);
+            
             break;
           case "ENAana":
-            var xml1 = await prepareAnalysisXML();
-            var xml2 = prepareSubmissionXML(action1, action2);
-            const text3 = await anaXMLSubmit(xml2, xml1);
+            
+            var xml1 = prepareSubmissionXML(action1, action2);
+            var xml2 = await prepareAnalysisXML();
+            const text3 = await anaXMLSubmit(xml1, xml2);
             document.getElementById("ENAanaReturn").innerText = text3;
             break;
         }
