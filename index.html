@@ -958,7 +958,39 @@
       pbar.setAttribute("aria-valuenow", progress)
     }
 
+    function refs2links( refs ){
+      const bsrefs=  refs.biosamples.refs;
+      let table = document.getElementById("sampleTable");
 
+      for( const[key, value] of Object.entries(bsrefs) ){
+        let acc = table.querySelectorAll("a[name='accession"+key+"']");
+        acc.forEach(ele=>{
+          ele.href = "https://wwwdev.ebi.ac.uk/biosamples/samples/"+value.externalAccession.id;
+          ele.classList.remove("d-none");
+          ele.innerHTML= value.accession + " <br>" + value.externalAccession.id;
+        })
+      }
+
+
+      for( const[key, value] of Object.entries(refs.ENAexperiment.refs) ){
+        let acc = table.querySelectorAll("a[name='accession"+key+"']");
+        acc.forEach(ele=>{
+          ele.href = "https://wwwdev.ebi.ac.uk/ena/browser/view/"+value.accession;
+          ele.classList.remove("d-none");
+          ele.innerHTML= value.accession+"<br>" ;
+        })
+      }
+
+
+      for( const[key, value] of Object.entries(refs.ENArun.refs) ){
+        let acc = table.querySelectorAll("a[name='accession"+key+"']");
+        acc.forEach(ele=>{
+          ele.href = "https://wwwdev.ebi.ac.uk/ena/browser/view/"+value.accession;
+          ele.classList.remove("d-none");
+          ele.innerHTML= value.accession +"<br>" ;
+        })
+      }
+    }
 
     async function cloneARC(convert = true) {
       try {
@@ -1064,37 +1096,56 @@
             <th scope="col">Number</th>
             <th scope="col">Identifier</th>
             <th scope="col">Studies/Assays</th>
-            <th scope="col">Inputs</th>
-            <th scope="col">Outputs</th>
+            <th scope="col">Inputs/Accession</th>
+            <th scope="col">Outputs/Accession</th>
 
             <th scope="col">Target Repo</th>
           </tr>
         </thead>
         <tbody>`
     }
-    function addTableRow(no, v1, v2, v3, v4, v5 ) {
+    function addTableRow(no, ident, study, input, output, targetRepo ) {
         
-      if (v5=="not provided"){
+      if (targetRepo=="not provided"){
 
-        v5 = `
-        <button name="selectRepo`+v2+`" class="btn btn-secondary dropdown-toggle" type="button"
+        targetRepo = `
+        <button name="selectRepo`+study+`" class="btn btn-secondary dropdown-toggle" type="button"
                       data-bs-toggle="dropdown" aria-expanded="false">
                       Select Repo
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" data-assays="`+v2+`"  onclick="addTarget(this.dataset.assays ,this.innerHTML)" href="#">ENA</a></li>
-                      <li><a class="dropdown-item" data-assays="`+v2+`" onclick="addTarget(this.dataset.assays, this.innerHTML)" href="#">Metabolights</a></li>
+                      <li><a class="dropdown-item" data-assays="`+study+`"  onclick="addTarget(this.dataset.assays ,this.innerHTML)" href="#">ENA</a></li>
+                      <li><a class="dropdown-item" data-assays="`+study+`" onclick="addTarget(this.dataset.assays, this.innerHTML)" href="#">Metabolights</a></li>
                     </ul>`
       }
-
-
+      let inputList="";
+      if(typeof(input)=="object"){
+         
+        for (const ele of input){
+          inputList += ele +'<br> <a class="d-none" name="accession'+ele+'" target="_blank" > </a>'
+        }
+          
+      }else{
+       inputList = input+'<br> <a class="d-none" name="accession'+input+'" target="_blank" > </a>';
+      };
+      let outputList="";
+      if(typeof(input)=="object"){
+         
+         for (const ele of output){
+          outputList += ele +'<br> <a class="d-none" name="accession'+ele+'" target="_blank" > </a>'
+         }
+           
+       }else{
+        outputList = output +'<br> <a class="d-none" name="accession'+output+'" target="_blank" > </a>';
+       };
+      
       return `<tr>
             <th>`+ no + `</th>
-            <td>`+ v1 + `</td>
-            <td>`+ v2 + `</td>
-            <td>`+ v3 + `</td>
-            <td>`+ v4 + `</td>
-            <td>`+ v5 + `</td>
+            <td>`+ ident + `</td>
+            <td>`+ study + `</td>
+            <td>`+ inputList + `</td>
+            <td>`+ outputList + `</td>
+            <td>`+ targetRepo + `</td>
           </tr>`
     }
     function addTableRow2(no, v1, v2, v3) {
@@ -1559,7 +1610,7 @@
           document.getElementById("ENAexpStatus").innerHTML = "<span class='text-success'> Success </span>";
           for (exp of experiments) {
             const alias = exp.getAttribute("alias").replace("experiment_" + prefix, "")
-            window.refs.ENAexperiment.refs[alias] = exp.getAttribute("accession");
+            window.refs.ENAexperiment.refs[alias] = {"accession":exp.getAttribute("accession")};
             for (chain of window.refs.chain) {
               if (chain.includes(alias)) {
                 chain.forEach((ele) => { window.refs.ENAexperiment.children[ele] = exp.getAttribute("accession") })
@@ -1568,7 +1619,7 @@
           };
           for (exp of runs) {
             const alias = exp.getAttribute("alias").replace("run_" + prefix, "")
-            window.refs.ENArun.refs[alias] = exp.getAttribute("accession");
+            window.refs.ENArun.refs[alias] = {"accession":exp.getAttribute("accession")};
             for (chain of window.refs.chain) {
               if (chain.includes(alias)) {
                 chain.forEach((ele) => { window.refs.ENArun.children[ele] = exp.getAttribute("accession") })
@@ -1709,6 +1760,7 @@
       const text = await response.text();
       experimentXML2ref(text);
       returnMessage["experiment"] = text;
+      document.getElementById("ENAexpReturn").innerText = text;
       return text;
     }
 
@@ -1827,6 +1879,12 @@
             ENAJSON[0].actions[1].type = action2;
             const text = await JSONSubmit(ENAJSON[0], ENAJSON[1], ENAJSON[2]);
             document.getElementById("BSReturn").innerText = text;
+            try {
+              refs2links( refs );
+            } catch (error) {
+              console.log(error);
+            }
+            
             loading.hide();
             break;
           case "ENAexp":
@@ -1834,7 +1892,11 @@
             var xml2 = await prepareExperimentXML(window.isaJSON);
             
             const text2 = await XMLSubmit(xml1, xml2);
-            
+            try {
+              refs2links( refs );
+            } catch (error) {
+              console.log(error);
+            }
             break;
           case "ENAana":
             
@@ -1842,6 +1904,11 @@
             var xml2 = await prepareAnalysisXML();
             const text3 = await anaXMLSubmit(xml1, xml2);
             document.getElementById("ENAanaReturn").innerText = text3;
+            try {
+              refs2links( refs );
+            } catch (error) {
+              console.log(error);
+            }
             break;
         }
     }

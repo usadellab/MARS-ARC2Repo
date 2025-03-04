@@ -209,7 +209,7 @@
             <a id="ghlinkshort" class="dropdown-item" href="https://github.com/elixir-europe/MARS">GitHub</a>
           </li>
           <li>
-            <a id="usshort" class="dropdown-item" onclick=''>About Us</a>
+            <a id="specshort" class="dropdown-item" onclick='dlText(JSON.stringify(googleJSON), "ISA-JSON_Specification_MARS")'>Download Specification</a>
           </li>
 
         </ul>
@@ -239,7 +239,7 @@
             <a id="ghlinklong" class="dropdown-item" href="https://github.com/elixir-europe/MARS">GitHub</a>
           </li>
           <li>
-            <a id="aboutlong" class="dropdown-item" href=''>About</a>
+            <a id="speclong" class="dropdown-item" onclick='dlText(JSON.stringify(googleJSON), "ISA-JSON_Specification_MARS")'>Download Specification</a>
           </li>
         </ul>
       </div>
@@ -1157,6 +1157,12 @@
           showSpecs();
           break; 
         default:
+        document.querySelectorAll('div[name="tab"]').forEach((e) => {
+            if (e.id == "isacheckTab") { e.classList.remove("d-none") }
+            else { e.classList.add("d-none") }
+          });
+          showSpecs();
+          break; 
         
       }
 
