@@ -446,52 +446,124 @@
 
     fetchGoogleCSV();
 
-    addEventListener("load", (event) => {
+    const fetchUserProjects = async (userId, accessToken) => {
       try {
-        var repoList;
-        fetch('https://git.nfdi4plants.org/api/v4/projects')
-          .then(data => {
-            if (data.status >= 400 && data.status < 600) {
-              throw alert("Bad response from server, please check the availability of the server");
-            }
-            return data.json();
-          })
-          .then(post => {
-            window.repoList = post;
-            var tableHTML = '';
-            let newIndex = 0;
-            post.forEach((element, index) => {
-              if (element.description !== null) {
+        // Define the API endpoint for fetching user-related projects
+        const apiUrl = `https://corsproxy.cplantbox.com/https://git.nfdi4plants.org/api/v4/users/${userId}/projects`;
 
+        // Fetch the data from the API with the access token in the headers
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}` // Include the token in the Authorization header [[3]]
+          }
+        });
 
-                const pathName = element.path_with_namespace.split("/");
-                newIndex += 1;
-                tableHTML += `
-        <tr>
-          <th scope="row">`+ newIndex + ` </th>
-          <td>
-          `+ pathName[0] + `
-            </td>
-             <td>
-          <a href="`+ element.web_url + `" target="_blank">` + pathName[1] + `</a>
-            </td>
-             <td>
-              <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" onclick="document.getElementById('repoURL').value='`+ element.http_url_to_repo + `'; cloneARC()" class="btn btn-primary">Import and Get ISA-JSON</button>
-          <button type="button" onclick="document.getElementById('repoURL').value='`+ element.http_url_to_repo + `'; cloneARC(false)" class="btn btn-secondary">Only Import</button>  
-          </div>
-          </td>
-        </tr>
-        `
-              }
-            }), document.getElementById("datahubTable").innerHTML = tableHTML;
-          }).catch((error) => {
-            // Your error is here!
-            alert(error)
-          });
-      } catch (e) {
-        alert(e);
+        // Check for bad responses (status codes between 400 and 599)
+        if (response.status >= 400 && response.status < 600) {
+          throw new Error("Bad response from server, please check the availability of the server");
+        }
+
+        // Parse the JSON response
+        const projects = await response.json();
+
+        // Assign the fetched data to a global variable (if needed)
+        window.userProjects = projects;
+
+        // Build the HTML table dynamically
+        let tableHTML = '';
+        let newIndex = 0;
+
+        projects.forEach((project) => {
+          if (project.name) { // Ensure the project has a valid name
+            newIndex += 1;
+
+            tableHTML += `
+              <tr>
+                <th scope="row">${newIndex}</th>
+                <td>${project.name}</td>
+                <td><a href="${project.web_url}" target="_blank">View Project</a></td>
+                <td>
+                  <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" onclick="document.getElementById('repoURL').value='${project.http_url_to_repo}'; cloneARC()" class="btn btn-primary">
+                      Import and Get ISA-JSON
+                    </button>
+                    <button type="button" onclick="document.getElementById('repoURL').value='${project.http_url_to_repo}'; cloneARC(false)" class="btn btn-secondary">
+                      Only Import
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+        });
+
+        // Insert the generated table HTML into the DOM
+        document.getElementById("userProjectsTable").innerHTML = tableHTML;
+      } catch (error) {
+        // Handle any errors that occur during the fetch or processing
+        alert(error.message || error);
       }
+    };
+
+
+    const fetchProjects = async () => {
+  try {
+    // Fetch the data from the API
+    const response = await fetch('https://git.nfdi4plants.org/api/v4/projects');
+
+    // Check for bad responses (status codes between 400 and 599)
+    if (response.status >= 400 && response.status < 600) {
+      throw new Error("Bad response from server, please check the availability of the server");
+    }
+
+    // Parse the JSON response
+    const post = await response.json();
+
+    // Assign the fetched data to a global variable
+    window.repoList = post;
+
+    // Build the HTML table dynamically
+    let tableHTML = '';
+    let newIndex = 0;
+
+    post.forEach((element, index) => {
+      if (element.description !== null) {
+        const pathName = element.path_with_namespace.split("/");
+        newIndex += 1;
+
+        tableHTML += `
+          <tr>
+            <th scope="row">${newIndex}</th>
+            <td>${pathName[0]}</td>
+            <td><a href="${element.web_url}" target="_blank">${pathName[1]}</a></td>
+            <td>
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" onclick="document.getElementById('repoURL').value='${element.http_url_to_repo}'; cloneARC()" class="btn btn-primary">
+                  Import and Get ISA-JSON
+                </button>
+                <button type="button" onclick="document.getElementById('repoURL').value='${element.http_url_to_repo}'; cloneARC(false)" class="btn btn-secondary">
+                  Only Import
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    });
+
+    // Insert the generated table HTML into the DOM
+    document.getElementById("datahubTable").innerHTML = tableHTML;
+  } catch (error) {
+    // Handle any errors that occur during the fetch or processing
+    alert(error.message || error);
+  }
+};
+    addEventListener("load", (event) => {
+      
+        fetchProjects();
+
+
     });
 
     var isaMapping = {
@@ -2031,7 +2103,7 @@
 
                       <span id="ENAexpReturn"> </span>
                       <br>
-                    <button class="btn btn-primary" onclick="newSubmit('ENAexp')"> Reubmit</button>
+                    <button class="btn btn-primary" onclick="newSubmit('ENAexp')"> Resubmit</button>
                     </button>
                     </div>
                   </div>
@@ -2046,7 +2118,7 @@
                     <div class="accordion-body">
                       <span id="ENAanaReturn"> </span>
                       <br>
-                      <button class="btn btn-primary" onclick="newSubmit('ENAana')">Reubmit</button>
+                      <button class="btn btn-primary" onclick="newSubmit('ENAana')">Resubmit</button>
 
                     </div>
                   </div>
