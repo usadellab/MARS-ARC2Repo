@@ -1765,7 +1765,7 @@
       };
       console.log(requestBody);
       // Send the POST request using Fetch API
-      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit', {
+      const response = await fetch('https://corsproxy.cplantbox.com/https://wwwdev.ebi.ac.uk/ena/submit/webin-v2/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1793,7 +1793,7 @@
       // Construct the request body
       //console.log(requestBody);
       // Send the POST request using Fetch API
-      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+      const response = await fetch('https://corsproxy.cplantbox.com/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
         method: 'POST',
         headers: {
           'Authorization': 'Basic ' + token,
@@ -1821,7 +1821,7 @@
       // Construct the request body
       //console.log(requestBody);
       // Send the POST request using Fetch API
-      const response = await fetch('https://cors2.dataplan.top/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
+      const response = await fetch('https://corsproxy.cplantbox.com/https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit', {
         method: 'POST',
         headers: {
           'Authorization': 'Basic ' + token,
@@ -1887,34 +1887,36 @@
 
     }
 
-    function enaSubmit(name, password, json) {
-      json =
-        fetch('https://ena.dataplan.top/isaena/submit?webinUserName=' + name + '&webinPassword=' + password, {
-          method: 'POST',
-          //mode: 'cors',
-          headers: {
+    // function enaSubmit(name, password, json) {
+    //   json =
+    //     fetch('https://ena.dataplan.top/isaena/submit?webinUserName=' + name + '&webinPassword=' + password, {
+    //       method: 'POST',
+    //       //mode: 'cors',
+    //       headers: {
 
-            'Content-Type': 'application/json',
-            'accept': '*/*'
-          },
-          body: JSON.stringify(json)
-        })
-          .then((response) => response.text())
-          .then(data => {
-            console.log('Success: ', data);
-            ena_return = data;
-            //document.getElementById("enaStatus").innerText = "Returned";
-            document.getElementById("enaText").innerText = ena_return;
-            document.getElementById("status_modal_button").click();
+    //         'Content-Type': 'application/json',
+    //         'accept': '*/*'
+    //       },
+    //       body: JSON.stringify(json)
+    //     })
+    //       .then((response) => response.text())
+    //       .then(data => {
+    //         console.log('Success: ', data);
+    //         ena_return = data;
+    //         //document.getElementById("enaStatus").innerText = "Returned";
+    //         document.getElementById("enaText").innerText = ena_return;
+    //         document.getElementById("status_modal_button").click();
 
-          })
-          .catch(error => {
-            alert("ENA submission failed, error is " + error + ". It might be caused by the incorrect login or the incorrect data transformation, please inform the developers.");
-            console.error('Error:', error);
+    //       })
+    //       .catch(error => {
+    //         alert("ENA submission failed, error is " + error + ". It might be caused by the incorrect login or the incorrect data transformation, please inform the developers.");
+    //         console.error('Error:', error);
 
-          });
+    //       });
 
-    };
+    // };
+    
+    
     addEventListener("hashchange", (event) => {
       if (true) {
         softRoute();
