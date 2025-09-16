@@ -108,13 +108,13 @@
   <div class="container">
     <div name="tab" class=" col-12 justify-content-center nav-link text-center" id="introTab">
       <a href="#a2j">
-        <h1>Converts ARCs to ISA-JSONs </h1>
+        <h1>Convert ARCs to ISA-JSONs </h1>
       </a>
       <a href="#isacheck">
-        <h1>Checks, validate and auto complete of ISA-JSON </h1>
+        <h1>Check, validate and auto-complete ISA-JSON </h1>
       </a>
       <a href="#submit">
-        <h1>ISA-JSON submission</h1>
+        <h1>ISA-JSON Submission</h1>
       </a>
     </div>
 
@@ -124,16 +124,16 @@
 
       <div class="input-group mb-3">
           
-        <span class="input-group-text" > ENA Webin Username</span> <input type="text" class="form-control" id="username" aria-describedby="usernameHelp">
+        <span class="input-group-text" > ENA WEBIN Username</span> <input type="text" class="form-control" id="username" aria-describedby="usernameHelp">
 
          
         <span class="input-group-text" > Password</span> <input type="password" class="form-control" id="password">
 
         <button class="btn btn-primary" onclick="submissionModal()"
-        id="submissionButton"> Start Submissions </button>
+        id="submissionButton"> Start Submission </button>
 
           <button class="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#cModal"
-            id="cModalButton"> Start Submissions </button>
+            id="cModalButton"> Start Submission </button>
       </div>
       
       <div class="col-6 m-auto">
@@ -142,7 +142,7 @@
             <h2 class="accordion-header" id="headingOne">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleTest"
                 aria-expanded="true" aria-controls="exampleTest">
-                Use prepared ISA-JSON example to test the basic functions
+                Use a prepared ISA-JSON example to test the basic functions
               </button>
             </h2>
             <div id="exampleTest" class="accordion-collapse collapse" aria-labelledby="headingOne"
@@ -232,7 +232,7 @@
           <form class="">
             <div class="row g-3 align-items-center">
               <div class="col-3 text-end">
-                <label for="repoURL" class="col-form-label">ARC gitlab URL</label>
+                <label for="repoURL" class="col-form-label">ARC GitLab URL</label>
               </div>
               <div class="col-5">
                 <input type="text" id="repoURL"
@@ -257,7 +257,7 @@
               </div>
               <div class="col-4">
                 <span id="UsernameHelpInline" class="form-text">
-                  The username or of DataHUB
+                  The username of DataHUB
                 </span>
               </div>
             </div>
@@ -272,14 +272,14 @@
               </div>
               <div class="col-4">
                 <span id="passwordHelpInline" class="form-text">
-                  The personal access token can be left empty if the repository is publicly accessible.
+                  The personal access token can be left empty if the repository is public.
                 </span>
               </div>
             </div>
             <div class="col-3 m-auto align-items-center">
               <br>
               <button class="btn btn-primary" id="submitURL" onclick="event.preventDefault(); cloneARC()">Export
-                ARC-JSON</button>
+                ARC as JSON</button>
             </div>
           </form>
         </div>
@@ -306,8 +306,8 @@
       </div>
       <div id="alertPlace"> </div>
       <h4> ISA JSON Visualization: </h4>
-      <label for="jsonRange" class="form-label">Chose the level of details by slides (larger number = more details). The
-        blocks can collapsed or explanded by clicks and the values will show when the blocks are hovered.
+      <label for="jsonRange" class="form-label">Choose the level of detail by sliding (a larger number means more details). The
+        blocks can be collapsed or expanded by clicking, and the values will be displayed when hovering over the blocks.
 
       </label>
 
@@ -326,7 +326,7 @@
   </div>
   <button type="button" class="btn btn-primary d-none" id="loadingModalBtn" data-bs-toggle="modal"
     data-bs-target="#loadingModal">
-    Launch loading modal
+    Launch Loading Modal
   </button>
   <div class="modal" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="#loadingModalLabel" aria-hidden="true">
@@ -370,8 +370,8 @@
     var returnMessage = {};
     var current_file;
     var steps = [{
-      title: "Converter and validators",
-      content: '<p> Welcome! Our converter can convert an ISA-JSON file to multiple endpoint repositories such as ENA, Metabolites, EGA, EVA'
+      title: "Converter and Validators",
+      content: '<p> Welcome! Our converter can convert an ISA-JSON file for multiple endpoint repositories such as ENA, Metabolites, EGA, and EVA'
       //
     }
     ];
@@ -461,7 +461,7 @@
 
         // Check for bad responses (status codes between 400 and 599)
         if (response.status >= 400 && response.status < 600) {
-          throw new Error("Bad response from server, please check the availability of the server");
+          throw new Error("Bad response from the server. Please check the server's availability");
         }
 
         // Parse the JSON response
@@ -486,10 +486,10 @@
                 <td>
                   <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" onclick="document.getElementById('repoURL').value='${project.http_url_to_repo}'; cloneARC()" class="btn btn-primary">
-                      Import and Get ISA-JSON
+                      Import and Get ISA-JSON.
                     </button>
                     <button type="button" onclick="document.getElementById('repoURL').value='${project.http_url_to_repo}'; cloneARC(false)" class="btn btn-secondary">
-                      Only Import
+                      Only import.
                     </button>
                   </div>
                 </td>
@@ -711,14 +711,14 @@
 
     var checklist_biosamples = [
       {
-        "description": "Checkingif investigation exists as a wrapper",
+        "description": "Checking if an investigation exists as a wrapper",
         "key": "investigation",
         "jsonata": "$.$keys()",
         "error": "element.key + \" can not be found in\" element.jsonata",
         "fixfunction": '{"investigation":$}'
       },
       {
-        "description": "Checkingif studies exsits",
+        "description": "Checking if studies exist",
         "key": "studies",
         "jsonata": "$.investigation.$keys()",
         "error": "element.key + \" can not be found in\" element.jsonata",
@@ -733,37 +733,37 @@
       // },
 
       {
-        "description": "check if organisms are added to the $.investigation.studies.materials.sources.characteristics ",
+        "description": "Check if organisms are added to the $.investigation.studies.materials.sources.characteristics ",
         "jsonata": '$assert($boolean($.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%.category."@id".$not($contains("organism"))).$not(), "error. Organism is not found" )',
         "fixfunction": '$~> |$.investigation.studies.materials.sources.characteristics."@id"[$contains("organism=")].%|   {"category":{"@id": "#MaterialAttribute/organism/OBI:0100026" }} |'
       },
       {
-        "description": "Checkingif organisms exists in the ids in characteristicCategories",
+        "description": "Checking if organisms exist in the ids in characteristicCategories",
         "jsonata": '$assert($boolean($.**.`@id`.$contains("#MaterialAttribute/OBI:0100026")).$not() , "error, no organisms in characteristicCategories")',
         "fixfunction": '$~>| $.**[`@id`="#MaterialAttribute/OBI:0100026"]|  {"@id":"#MaterialAttribute/organism/OBI:0100026"}  |'
       },
       {
-        "description": "Checkingif there are multiple studies exist. Only the first will be slected if there is not submission specifications",
+        "description": "Checking if multiple studies exist. Only the first will be selected if there are no submission specifications",
         "jsonata": '$assert ($count($.investigation.studies)=1, "error. More than one studies are found" )',
         "fixfunction": '$~> |$.investigation | {"studies" : [$.studies[0]]} |'
       },
       {
-        "description": "Checkingif all investigation.studies.materials.sources have at least one characteristics",
+        "description": "Checking if all investigation.studies.materials.sources have at least one characteristic",
         "jsonata": '$assert($count($.investigation.studies.materials.sources[$lookup("characteristics")]) = $count($.investigation.studies.materials.sources), "Not all sources in materials have characteristics ")',
         "fixfunction": '$~>|  $.investigation.studies.materials| {"sources" : sources[$lookup("characteristics")] }  |'
 
       }, {
-        "description": "To evaluate the type of \"value\" key, try auto fix if the value is numbers or strings",
+        "description": "To evaluate the type of the \"value\" key, try to auto-fix if the value is a number or a string",
         "jsonata": '$assert(($nopeople := $ ~> |$.investigation.studies[0]| {"people":[]} |; $not($exists($nopeople.investigation.studies.**[($type(value) = "string") or ($type(value) = "number")]))), "error, the strings or numbers type of value exist in the values")',
         "error": "string and number values exist in the 'value' keys",
         "fixfunction": '($people := $.investigation.studies.people ;$c1 := $ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }| ;  $c1 ~> | $.investigation.studies| {"people" : $people} | )'
       }, {
-        "description": "Checkingif all investigation.studies.materials.sources.characteristics.category has correct format",
+        "description": "Checking if all investigation.studies.materials.sources.characteristics.category have the correct format",
         "jsonata": '($p := $.investigation.studies.materials.sources.characteristics; $assert( $count($p) = $count($p.category) , "Some characteristics do not have categories" ))',
         "fixfunction": '($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : category}; $getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"category": `@id`.$getvalue($) }| )'
       },
       {
-        "description": "Checkinginvestigation.studies.materials.sources.characteristics.value ",
+        "description": "Checking investigation.studies.materials.sources.characteristics.value ",
         "jsonata": '($p := $.investigation.studies.materials.sources.characteristics[[$contains(`@id`, "Empty" ).$not()]]; $assert( $count($p) = $count($p.value) , "Some characteristics do not have values" ))',
         "fixfunction": '($dic := $.investigation.studies.materials.sources.characteristics[$lookup("value")]{ `@id` : value};$getvalue := function($id){($dic.$lookup($id))}; $ ~> |$.investigation.studies.materials.sources.characteristics| {"value": `@id`.$getvalue($) }| )'
       }
@@ -771,7 +771,7 @@
 
     var checklist_ena = [
       {
-        "description": "evaluate the type of \"value\" key, try auto fix if the value is ",
+        "description": "evaluate the type of the \"value\" key, and try to auto-fix if the value is ",
         "jsonata": '$assert($.studies.**[($type(value) = "string") or ($type(value) = "number")], "error")',
         "error": "string and number values exist in the 'value' keys",
         "fixfunction": '$ ~> | $.investigation.studies.**[($type(value) = "string") or ($type(value) = "number") ] | { "value": {"@id": "","annotationValue": value.$string(), "termAccession":"", "termSource":"" } }|'
@@ -821,7 +821,7 @@
       if(repoList != undefined){
         document.getElementById("cModalButton").click();
       }else{
-        alert("'target_repository' can not be found, please chose a repository using the dropdown menu.")
+        alert("'target_repository' can not be found, please choose a repository using the dropdown menu.")
       }
     
     }
@@ -866,17 +866,17 @@
             isa = await jCheck(isa, element.fixfunction);
             jCheck(isa, element.jsonata)
               .catch(e => {
-                bootAlert(e.message + ". \n Validation failed and automatic patch is not successful. \n ", "danger");
+                bootAlert(e.message + ". \n Validation failed and the automatic patch was not successful. \n ", "danger");
                 return Promise.reject()
               }
               )
               .then(e => {
                 passed += 1;
-                bootAlert(element.description + ". \n Validation failed but automatic patching has been successfully done", "warning");
+                bootAlert(element.description + ". \n Validation failed but automatic patching has been successful", "warning");
 
                 if (passed == checklist.length) {
                   document.getElementById("toSubmit").classList.remove("d-none");
-                  console.log("all test passed");
+                  console.log("all tests passed");
                 } else {
                   document.getElementById("toSubmit").classList.add("d-none");
                 }
@@ -1114,7 +1114,7 @@
              `+ fileName[1] + `
                 </td>
                 <td>  
-              <button type="button" onclick=" runARC2JSON('`+ element + `')" class="btn btn-primary">Get ISA-JSON</button>
+              <button type="button" onclick=" runARC2JSON('`+ element + `')" class="btn btn-primary">Get ISA-JSON.</button>
               </td>
             </tr>
             `
@@ -1138,7 +1138,7 @@
     async function runARC2JSON(dir) {
       try {
         const ele = document.getElementById("ARCInfo");
-        //ele.innerHTML= "Downloading ARC successful, files are "+ (FS.readdirSync(dir));
+        //ele.innerHTML= "ARC download successful. Files are "+ (FS.readdirSync(dir));
         const dec = new TextDecoder;
         var jsonText;
         let fileName = dir + "exported.json";
@@ -1183,7 +1183,7 @@
         targetRepo = `
         <button name="selectRepo`+study+`" class="btn btn-secondary dropdown-toggle" type="button"
                       data-bs-toggle="dropdown" aria-expanded="false">
-                      Select Repo
+                      Select Repository
                     </button>
                     <ul class="dropdown-menu">
                       <li><a class="dropdown-item" data-assays="`+study+`"  onclick="addTarget(this.dataset.assays ,this.innerHTML)" href="#">ENA</a></li>
@@ -1927,7 +1927,7 @@
       var copyText = document.getElementById(id).innerText;
       navigator.clipboard.writeText(copyText)
         .catch(e => alert(e))
-        .then(e => alert("copy successful"));
+        .then(e => alert("Copy successful."));
     }
 
     const allSubmit = async function () {
@@ -1990,7 +1990,7 @@
 
   <!-- Button trigger modal -->
   <button type="button" class="d-none btn btn-primary">
-    Launch convert modal
+    Launch Convert Modal
   </button>
   <!--Modal for submission-->
   <div class="modal fade" id="cModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="cModalLabel"
