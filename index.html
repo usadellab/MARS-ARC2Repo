@@ -573,20 +573,34 @@
     // Assign the fetched data to a global variable
     window.repoList = post;
 
+    // Sort projects to put MARS_ENA-Metabolights first
+    const sortedProjects = [...post].sort((a, b) => {
+      const aIsMars = a.path_with_namespace.includes('MARS_ENA-Metabolights');
+      const bIsMars = b.path_with_namespace.includes('MARS_ENA-Metabolights');
+
+      if (aIsMars && !bIsMars) return -1;
+      if (!aIsMars && bIsMars) return 1;
+      return 0;
+    });
+
     // Build the HTML table dynamically
     let tableHTML = '';
     let newIndex = 0;
 
-    post.forEach((element, index) => {
+    sortedProjects.forEach((element, index) => {
       if (1 !== null) {
         const pathName = element.path_with_namespace.split("/");
         newIndex += 1;
 
+        // Highlight MARS_ENA-Metabolights row
+        const isMarsPriorityRepo = pathName[1] && pathName[1].includes('MARS_ENA-Metabolights');
+        const rowClass = isMarsPriorityRepo ? 'class="table-warning"' : '';
+
         tableHTML += `
-          <tr>
+          <tr ${rowClass}>
             <th scope="row">${newIndex}</th>
             <td>${pathName[0]}</td>
-            <td><a href="${element.web_url}" target="_blank">${pathName[1]}</a></td>
+            <td><a href="${element.web_url}" target="_blank">${pathName[1]}${isMarsPriorityRepo ? ' ⭐' : ''}</a></td>
             <td>
               <div class="btn-group" role="group" aria-label="Basic example">
                 <button type="button" onclick="document.getElementById('repoURL').value='${element.http_url_to_repo}'; cloneARC()" class="btn btn-primary">
@@ -1817,14 +1831,90 @@
 
     }
 
+    // Show ARC download modal
+    function showArcDownloadModal() {
+      const modal = new bootstrap.Modal(document.getElementById('arcDownloadModal'));
+      modal.show();
+    }
+
+    // Handle "Yes" choice - download prepared ARC
+    async function downloadPreparedArc() {
+      try {
+        // Show auto-import status on intro tab
+        document.getElementById("autoImportStatus").classList.remove("d-none");
+
+        // Navigate to ARC2JSON tab first
+        location.href = location.href.split('#')[0] + '#a2j';
+
+        // Execute the auto-import
+        await autoImportRepository();
+      } catch (error) {
+        console.error("Failed to download prepared ARC:", error);
+        bootAlert("Failed to download prepared ARC: " + error.message, "danger");
+      }
+    }
+
+    // Handle "No" choice - show ARCs table
+    function showArcsTable() {
+      // Navigate to ARC2JSON tab to show the table
+      location.href = location.href.split('#')[0] + '#a2j';
+
+      // Ensure MARS_ENA-Metabolights is at the top of the table
+      prioritizeMarsEnaInTable();
+    }
+
+    // Function to move MARS_ENA-Metabolights to top of table
+    function prioritizeMarsEnaInTable() {
+      const table = document.getElementById("datahubTable");
+      if (table) {
+        const rows = Array.from(table.querySelectorAll("tr"));
+
+        // Find the MARS_ENA-Metabolights row
+        const marsRow = rows.find(row => {
+          const repoLink = row.querySelector('a[href*="MARS_ENA-Metabolights"]');
+          return repoLink !== null;
+        });
+
+        if (marsRow) {
+          // Remove the row from its current position
+          marsRow.remove();
+
+          // Insert it at the beginning of the table
+          table.insertBefore(marsRow, table.firstChild);
+
+          // Update row numbers
+          updateTableRowNumbers();
+
+          // Highlight the row briefly
+          marsRow.style.backgroundColor = '#fff3cd';
+          setTimeout(() => {
+            marsRow.style.backgroundColor = '';
+          }, 3000);
+        }
+      }
+    }
+
+    // Update row numbers after reordering
+    function updateTableRowNumbers() {
+      const table = document.getElementById("datahubTable");
+      const rows = table.querySelectorAll("tr");
+
+      rows.forEach((row, index) => {
+        const numberCell = row.querySelector("th");
+        if (numberCell) {
+          numberCell.textContent = index + 1;
+        }
+      });
+    }
+
     window.addEventListener("load", async (event) => {
       // Load all ARCs in table first
       fetchProjects();
 
       softRoute();
 
-      // Auto-import specific repository on page load
-      await autoImportRepository();
+      // Show ARC download modal on page load
+      showArcDownloadModal();
     });
 
     async function autoImportRepository() {
@@ -2136,6 +2226,28 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary d-none"  data-bs-dismiss="modal">download updated JSON</button>
           
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARC Download Modal -->
+  <div class="modal fade" id="arcDownloadModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+       aria-labelledby="arcDownloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="arcDownloadModalLabel">ARC Tool</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Would you like to use the prepared ARC (MARS_ENA-Metabolights) to explore this tool?</p>
+          <p><strong>Yes:</strong> Automatically download and process the MARS_ENA-Metabolights ARC</p>
+          <p><strong>No:</strong> Browse available ARCs in the table</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="showArcsTable()">No - Browse ARCs</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="downloadPreparedArc()">Yes - Use Prepared ARC</button>
         </div>
       </div>
     </div>
