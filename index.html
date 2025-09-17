@@ -714,21 +714,21 @@
         "description": "Checking if an investigation exists as a wrapper",
         "key": "investigation",
         "jsonata": "$.$keys()",
-        "error": "element.key + \" can not be found in\" element.jsonata",
+        "error": "element.key + \" cannot be found in\" element.jsonata",
         "fixfunction": '{"investigation":$}'
       },
       {
         "description": "Checking if studies exist",
         "key": "studies",
         "jsonata": "$.investigation.$keys()",
-        "error": "element.key + \" can not be found in\" element.jsonata",
+        "error": "element.key + \" cannot be found in\" element.jsonata",
         "fixfunction": '$~>| $.investigation| {"studies":"missing_key"} |'
       },
       // {
-      //   "description" : "Checkingif assays exsits",
+      //   "description" : "Checking if assays exist",
       //   "key": "assays",
       //   "jsonata": "$.investigation.studies[0].$keys()",
-      //   "error": "element.key + \" can not be found in\" element.jsonata",
+      //   "error": "element.key + \" cannot be found in\" element.jsonata",
       //   "fixfunction": '$assert($.investigation.studies.$keys(), "error, no assays in studies")'
       // },
 
@@ -821,7 +821,7 @@
       if(repoList != undefined){
         document.getElementById("cModalButton").click();
       }else{
-        alert("'target_repository' can not be found, please choose a repository using the dropdown menu.")
+        alert("'target_repository' cannot be found, please choose a repository using the dropdown menu.")
       }
     
     }
@@ -852,7 +852,7 @@
       for (const [index, element] of Object.entries(checklist,)) {
         try {
           if (element.key) {
-            await jCheck(isa, checkHas(element.key, element.jsonata, element.key + " can not be found in " + element.jsonata));
+            await jCheck(isa, checkHas(element.key, element.jsonata, element.key + " cannot be found in " + element.jsonata));
             passed += 1;
             bootAlert(element.description + ". [Test passed]", "success")
 
